@@ -116,10 +116,11 @@ class TaskListView extends StatelessWidget {
             final task = tasks[index];
 
             return TaskTile(
+              taskId: task.id, // Przekazanie ID dokumentu
               taskTitle: task['Nazwa'],
               taskDescription: task['Opis'],
-              price: task['Cena'].toString(), // Dodanie ceny
-              imageUrl: task['zdjecie'], // Dodanie obsługi obrazów
+              price: task['Cena'].toString(),
+              imageUrl: task['zdjecie'],
             );
           },
         );
@@ -128,33 +129,29 @@ class TaskListView extends StatelessWidget {
   }
 }
 
-// Widget kafelka zadania (zmieniony na listę)
 class TaskTile extends StatelessWidget {
+  final String taskId; // Dodanie taskId
   final String taskTitle;
   final String taskDescription;
   final String price;
   final String? imageUrl;
-  final ScreenController _screenController = ScreenController();
 
-  TaskTile({
+  const TaskTile({
+    required this.taskId,
     required this.taskTitle,
     required this.taskDescription,
-    required this.price, // Cena zadania
+    required this.price,
     this.imageUrl,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    final _screenController = ScreenController();
+
     return InkWell(
       onTap: () {
-        _screenController.navigateToTaskDetail(
-          context,
-          taskTitle,
-          taskDescription,
-          price,
-          imageUrl,
-        );
+        _screenController.navigateToTaskDetail(context, taskId);
       },
       child: Card(
         elevation: 5.0,

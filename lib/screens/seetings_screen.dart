@@ -22,13 +22,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _userService.loadUserDataToControllers(
+    _userService
+        .loadUserDataToControllers(
       bioController: _bioController,
       firstNameController: _firstNameController,
       lastNameController: _lastNameController,
       accountTypeController: _accountTypeController,
       ageController: _ageController,
-    );
+    )
+        .then((_) {
+      setState(
+          () {}); // Odśwież ekran, aby załadować wybraną wartość w liście rozwijanej
+    });
   }
 
   Future<void> _saveUserInfo() async {
@@ -90,12 +95,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 const SizedBox(height: 10),
-                TextFormField(
-                  controller: _accountTypeController,
+                DropdownButtonFormField<String>(
+                  value: _accountTypeController.text.isNotEmpty
+                      ? _accountTypeController.text
+                      : null,
                   decoration: const InputDecoration(labelText: 'Typ konta'),
+                  items: const [
+                    DropdownMenuItem(
+                        value: 'Pracownik', child: Text('Pracownik')),
+                    DropdownMenuItem(
+                        value: 'Pracodawca', child: Text('Pracodawca')),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _accountTypeController.text = value ??
+                          ''; // Przypisanie wybranej wartości do kontrolera
+                    });
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Wprowadź typ konta';
+                      return 'Wybierz typ konta';
                     }
                     return null;
                   },

@@ -67,17 +67,11 @@ class ScreenController {
     );
   }
 
-  void navigateToTaskDetail(BuildContext context, String taskTitle,
-      String taskDescription, String price, String? imageUrl) {
+  void navigateToTaskDetail(BuildContext context, String taskId) {
     Navigator.pushNamed(
       context,
       '/task-detail',
-      arguments: {
-        'taskTitle': taskTitle,
-        'taskDescription': taskDescription,
-        'price': price,
-        'imageUrl': imageUrl,
-      },
+      arguments: {'taskId': taskId},
     );
   }
 }

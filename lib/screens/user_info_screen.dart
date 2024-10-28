@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stutask/bloc/user_service.dart';
 
+//TEN EKRAN JEST OD PIERWSZEGO URUCHOMIENIA
+
 class UserInfoScreen extends StatefulWidget {
   @override
   _UserInfoScreenState createState() => _UserInfoScreenState();
@@ -77,12 +79,26 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                   },
                 ),
                 const SizedBox(height: 10),
-                TextFormField(
-                  controller: _accountTypeController,
+                DropdownButtonFormField<String>(
+                  value: _accountTypeController.text.isNotEmpty
+                      ? _accountTypeController.text
+                      : null,
                   decoration: const InputDecoration(labelText: 'Typ konta'),
+                  items: const [
+                    DropdownMenuItem(
+                        value: 'Pracownik', child: Text('Pracownik')),
+                    DropdownMenuItem(
+                        value: 'Pracodawca', child: Text('Pracodawca')),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _accountTypeController.text = value ??
+                          ''; // Przypisanie wybranej wartości do kontrolera
+                    });
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Wprowadź typ konta';
+                      return 'Wybierz typ konta';
                     }
                     return null;
                   },
