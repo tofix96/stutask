@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "618977047861",
+    "project_id": "stutask-52ad6",
+    "storage_bucket": "stutask-52ad6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:618977047861:android:572616af4abe58ef62887c",
+        "android_client_info": {
+          "package_name": "com.example.stutask"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKhuqTQAcIh54z1n5xbeeQ-oH2qBVNdvA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
