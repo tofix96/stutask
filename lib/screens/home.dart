@@ -12,33 +12,39 @@ import 'package:stutask/bloc/screen_controller.dart';
 
 class HomePage extends StatefulWidget {
   final User? user;
+  final bool showEmployerTasks;
 
-  const HomePage({required this.user, super.key});
+  const HomePage({required this.user, this.showEmployerTasks = false, Key? key})
+      : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0; // Przechowywanie indeksu aktualnie wybranego ekranu
+  int _selectedIndex = 0;
+  final ScreenController _screenController = ScreenController();
 
-  // Lista widgetów (ekranów), które będą wyświetlane w zależności od wybranego indeksu
-  static List<Widget> _widgetOptions(User user) => <Widget>[
-        TaskListView(user: user), // Wyświetlanie listy zadań
-        CreateTaskScreen(), // Ekran tworzenia nowego zadania
-        SettingsScreen(), // Ekran ustawień zamiast placeholder // Możesz dodać więcej ekranów
+  static List<Widget> _widgetOptions(User user, bool showEmployerTasks) =>
+      <Widget>[
+        TaskListView(user: user, showEmployerTasks: showEmployerTasks),
+        CreateTaskScreen(),
+        SettingsScreen(),
       ];
 
-  // Funkcja zmieniająca indeks wybranego ekranu
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+    // Przejdź do `HomePage` z filtrowaniem `false`, gdy wybrano zakładkę z listą zadań
+    if (index == 0) {
+      _screenController.navigateToHome(context, widget.user,
+          showEmployerTasks: false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    // final token = Provider.of<custom_auth.AuthProvider>(context).token;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Stutask'),
@@ -50,17 +56,16 @@ class _HomePageState extends State<HomePage> {
               Provider.of<custom_auth.AuthProvider>(context, listen: false)
                   .setToken(null);
               Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (_) => const LoginPage()));
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+              );
             },
           ),
         ],
       ),
       body: widget.user != null
-          ? _widgetOptions(widget.user!)
-              .elementAt(_selectedIndex) // Dynamiczna zmiana zawartości ekranu
+          ? _widgetOptions(widget.user!, widget.showEmployerTasks)
+              .elementAt(_selectedIndex)
           : const Center(child: Text('Nie znaleziono danych użytkownika.')),
-
-      // Dolna nawigacja (BottomNavigationBar) do zmiany ekranów
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
@@ -75,14 +80,18 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.settings),
             label: 'Ustawienia',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.chat_sharp),
-          //   label: 'Chat',
-          // ),
         ],
-        currentIndex: _selectedIndex, // Aktualnie wybrany indeks
-        selectedItemColor: Colors.blue, // Kolor zaznaczonego elementu
-        onTap: _onItemTapped, // Wywołanie funkcji po kliknięciu na element
+        currentIndex: _selectedIndex,
+        selectedItemColor: const Color.fromARGB(255, 255, 153, 0),
+        onTap: _onItemTapped,
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _screenController.navigateToHome(context, widget.user,
+              showEmployerTasks: true);
+        },
+        child: const Icon(Icons.filter_list),
+        tooltip: 'Filtruj zadania pracodawcy',
       ),
     );
   }
@@ -91,13 +100,24 @@ class _HomePageState extends State<HomePage> {
 // Widget do wyświetlania listy z zadaniami
 class TaskListView extends StatelessWidget {
   final User user;
+  final bool showEmployerTasks;
 
-  const TaskListView({required this.user, super.key});
+  const TaskListView(
+      {required this.user, this.showEmployerTasks = false, Key? key})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Dodaj filtr dla zadań, aby wyświetlić tylko zadania utworzone przez pracodawcę
+    final taskStream = showEmployerTasks
+        ? FirebaseFirestore.instance
+            .collection('tasks')
+            .where('userId', isEqualTo: user.uid)
+            .snapshots()
+        : FirebaseFirestore.instance.collection('tasks').snapshots();
+
     return StreamBuilder(
-      stream: FirebaseFirestore.instance.collection('tasks').snapshots(),
+      stream: taskStream,
       builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -116,7 +136,7 @@ class TaskListView extends StatelessWidget {
             final task = tasks[index];
 
             return TaskTile(
-              taskId: task.id, // Przekazanie ID dokumentu
+              taskId: task.id,
               taskTitle: task['Nazwa'],
               taskDescription: task['Opis'],
               price: task['Cena'].toString(),

@@ -53,8 +53,13 @@ class MyApp extends StatelessWidget {
         initialRoute: '/', // Domyślna trasa (login)
         routes: {
           '/': (context) => const LoginPage(),
-          '/home': (context) =>
-              HomePage(user: FirebaseAuth.instance.currentUser),
+          '/home': (context) => HomePage(
+                user: FirebaseAuth.instance.currentUser,
+                showEmployerTasks: false,
+              ),
+          '/home-employer-tasks': (context) => HomePage(
+              user: FirebaseAuth.instance.currentUser,
+              showEmployerTasks: true), // Zadania danego pracodawcy
           '/user-info': (context) => UserInfoScreen(),
           '/settings': (context) => SettingsScreen(),
           '/task-detail': (context) => TaskDetailScreen(),
