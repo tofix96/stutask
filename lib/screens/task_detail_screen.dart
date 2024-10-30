@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:stutask/bloc/screen_controller.dart';
 
 class TaskDetailScreen extends StatelessWidget {
   @override
@@ -8,6 +9,7 @@ class TaskDetailScreen extends StatelessWidget {
     final arguments = ModalRoute.of(context)!.settings.arguments as Map;
     final String taskId = arguments['taskId'];
     final User? user = FirebaseAuth.instance.currentUser;
+    final ScreenController _screenController = ScreenController();
 
     return FutureBuilder<DocumentSnapshot>(
       future: FirebaseFirestore.instance.collection('tasks').doc(taskId).get(),
@@ -20,10 +22,11 @@ class TaskDetailScreen extends StatelessWidget {
         }
 
         final taskData = snapshot.data!.data() as Map<String, dynamic>;
+        final assignedUserId = taskData['assignedUserId'];
 
         return Scaffold(
           appBar: AppBar(
-            title: Text('Szczegóły zadania'),
+            title: const Text('Szczegóły zadania'),
           ),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -79,13 +82,51 @@ class TaskDetailScreen extends StatelessWidget {
                     final userData =
                         userSnapshot.data!.data() as Map<String, dynamic>;
                     final String accountType = userData['Typ_konta'];
+                    final String userId = user?.uid ?? '';
+
+                    // Sprawdź, czy jest przypisany pracownik
+                    if (assignedUserId != null) {
+                      return FutureBuilder<DocumentSnapshot>(
+                        future: FirebaseFirestore.instance
+                            .collection('D_Users')
+                            .doc(assignedUserId)
+                            .get(),
+                        builder: (context, assignedUserSnapshot) {
+                          if (assignedUserSnapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const CircularProgressIndicator();
+                          }
+                          if (!assignedUserSnapshot.hasData ||
+                              !assignedUserSnapshot.data!.exists) {
+                            return const Text('Brak przypisanego pracownika.');
+                          }
+
+                          final assignedUserData = assignedUserSnapshot.data!
+                              .data() as Map<String, dynamic>;
+                          final assignedUserName =
+                              '${assignedUserData['Imię']} ${assignedUserData['Nazwisko']}';
+
+                          return Text('Przypisano do: $assignedUserName');
+                        },
+                      );
+                    }
 
                     return accountType == 'Pracownik'
                         ? ElevatedButton(
-                            onPressed: () => _applyForTask(taskId, user!.uid),
+                            onPressed: () => _applyForTask(taskId, userId),
                             child: const Text('Aplikuj'),
                           )
-                        : const SizedBox();
+                        : accountType == 'Pracodawca' &&
+                                taskData['userId'] == userId
+                            ? ElevatedButton(
+                                onPressed: () {
+                                  _screenController
+                                      .navigateToApplicationsScreen(
+                                          context, taskId);
+                                },
+                                child: const Text('Zobacz aplikacje'),
+                              )
+                            : const SizedBox();
                   },
                 ),
               ],

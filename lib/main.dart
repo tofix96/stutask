@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Import dla kIsWeb
 import 'package:provider/provider.dart'; // Import dla Provider
 import 'package:firebase_app_check/firebase_app_check.dart'; // Import App Check
+import 'package:stutask/screens/application_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/home.dart'; // Import HomePage
 import 'bloc/auth_providers.dart' as custom_auth; // Import AuthProvider
@@ -58,11 +59,15 @@ class MyApp extends StatelessWidget {
                 showEmployerTasks: false,
               ),
           '/home-employer-tasks': (context) => HomePage(
-              user: FirebaseAuth.instance.currentUser,
-              showEmployerTasks: true), // Zadania danego pracodawcy
+              user: FirebaseAuth
+                  .instance.currentUser), // Zadania danego pracodawcy
           '/user-info': (context) => UserInfoScreen(),
           '/settings': (context) => SettingsScreen(),
           '/task-detail': (context) => TaskDetailScreen(),
+          '/applications': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments as Map;
+            return ApplicationsScreen(taskId: args['taskId']);
+          },
         },
       ),
     );

@@ -14,8 +14,8 @@ class HomePage extends StatefulWidget {
   final User? user;
   final bool showEmployerTasks;
 
-  const HomePage({required this.user, this.showEmployerTasks = false, Key? key})
-      : super(key: key);
+  const HomePage(
+      {required this.user, this.showEmployerTasks = false, super.key});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -29,6 +29,7 @@ class _HomePageState extends State<HomePage> {
       <Widget>[
         TaskListView(user: user, showEmployerTasks: showEmployerTasks),
         CreateTaskScreen(),
+        TaskListView(user: user, showEmployerTasks: true),
         SettingsScreen(),
       ];
 
@@ -48,6 +49,7 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Stutask'),
+        backgroundColor: Color.fromRGBO(239, 120, 16, 0.968),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -67,6 +69,7 @@ class _HomePageState extends State<HomePage> {
               .elementAt(_selectedIndex)
           : const Center(child: Text('Nie znaleziono danych użytkownika.')),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
@@ -77,21 +80,17 @@ class _HomePageState extends State<HomePage> {
             label: 'Dodaj Zadanie',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Ustawienia',
+            icon: Icon(Icons.filter_list),
+            label: 'Moje zadania',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.face),
+            label: 'Profil',
           ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: const Color.fromARGB(255, 255, 153, 0),
         onTap: _onItemTapped,
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _screenController.navigateToHome(context, widget.user,
-              showEmployerTasks: true);
-        },
-        child: const Icon(Icons.filter_list),
-        tooltip: 'Filtruj zadania pracodawcy',
       ),
     );
   }

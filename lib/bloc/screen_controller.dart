@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:stutask/screens/home.dart';
 import 'package:stutask/screens/register_screen.dart';
 import 'package:stutask/screens/user_info_screen.dart';
+import 'package:stutask/screens/application_screen.dart';
 
 class ScreenController {
   // Funkcja logowania użytkownika
@@ -75,6 +76,15 @@ class ScreenController {
       context,
       '/task-detail',
       arguments: {'taskId': taskId},
+    );
+  }
+
+  void navigateToApplicationsScreen(BuildContext context, String taskId) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ApplicationsScreen(taskId: taskId),
+      ),
     );
   }
 }
