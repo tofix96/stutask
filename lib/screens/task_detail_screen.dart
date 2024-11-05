@@ -25,6 +25,7 @@ class TaskDetailScreen extends StatelessWidget {
 
         final taskData = snapshot.data!.data() as Map<String, dynamic>;
         final assignedUserId = taskData['assignedUserId'];
+        final complated = taskData['completed'];
 
         return Scaffold(
           appBar: AppBar(
@@ -87,7 +88,7 @@ class TaskDetailScreen extends StatelessWidget {
                     final String userId = user?.uid ?? '';
 
                     // Sprawdź, czy jest przypisany pracownik
-                    if (assignedUserId != null) {
+                    if (assignedUserId != null && complated != true) {
                       return FutureBuilder<DocumentSnapshot>(
                         future: FirebaseFirestore.instance
                             .collection('D_Users')
@@ -105,29 +106,40 @@ class TaskDetailScreen extends StatelessWidget {
 
                           final assignedUserData = assignedUserSnapshot.data!
                               .data() as Map<String, dynamic>;
-                          final assignedUserName =
-                              '${assignedUserData['Imię']} ${assignedUserData['Nazwisko']}';
 
-                          return Text('Przypisano do: $assignedUserName');
+                          return AssignedUserWidget(
+                            assignedUserName:
+                                '${assignedUserData['Imię']} ${assignedUserData['Nazwisko']}',
+                            assignedUserId:
+                                assignedUserId, // Przekaż ID użytkownika
+                            taskId: taskId, // Przekaż ID zadania
+                            onSubmitReview: (review, rating) {
+                              print('Ocena: $rating, Opinia: $review');
+                            },
+                          );
                         },
                       );
                     }
-
-                    return accountType == 'Pracownik'
-                        ? ElevatedButton(
-                            onPressed: () => _applyForTask(taskId, userId),
-                            child: const Text('Aplikuj'),
-                          )
-                        : accountType == 'Pracodawca' &&
-                                taskData['userId'] == userId
-                            ? ElevatedButton(
-                                onPressed: () {
-                                  screenController.navigateToApplicationsScreen(
-                                      context, taskId);
-                                },
-                                child: const Text('Zobacz aplikacje'),
-                              )
-                            : const SizedBox();
+                    if (complated != true) {
+                      return accountType == 'Pracownik'
+                          ? ElevatedButton(
+                              onPressed: () => _applyForTask(taskId, userId),
+                              child: const Text('Aplikuj'),
+                            )
+                          : accountType == 'Pracodawca' &&
+                                  taskData['userId'] == userId
+                              ? ElevatedButton(
+                                  onPressed: () {
+                                    screenController
+                                        .navigateToApplicationsScreen(
+                                            context, taskId);
+                                  },
+                                  child: const Text('Zobacz aplikacje'),
+                                )
+                              : const SizedBox();
+                    } else {
+                      return const Text('Zadanie zostało wykonane');
+                    }
                   },
                 ),
               ],
@@ -143,6 +155,134 @@ class TaskDetailScreen extends StatelessWidget {
     await taskRef.collection('applications').doc(userId).set({
       'userId': userId,
       'appliedAt': Timestamp.now(),
+    });
+  }
+}
+
+class AssignedUserWidget extends StatelessWidget {
+  final String assignedUserName;
+  final Function(String, int) onSubmitReview;
+  final String assignedUserId; // ID przypisanego użytkownika
+  final String taskId; // ID zadania
+
+  AssignedUserWidget({
+    required this.assignedUserName,
+    required this.onSubmitReview,
+    required this.assignedUserId,
+    required this.taskId,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Przypisano do: $assignedUserName'),
+        const SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            _showReviewDialog(context);
+          },
+          child: const Text('Wystaw opinię i zakończ zadanie'),
+        ),
+      ],
+    );
+  }
+
+  void _showReviewDialog(BuildContext context) {
+    final TextEditingController reviewController = TextEditingController();
+    int rating = 1;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Wystaw opinię'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Ocena (od 1 do 5)'),
+              DropdownButton<int>(
+                value: rating,
+                onChanged: (int? newValue) {
+                  if (newValue != null) {
+                    rating = newValue;
+                  }
+                },
+                items: List<DropdownMenuItem<int>>.generate(
+                  5,
+                  (index) => DropdownMenuItem<int>(
+                    value: index + 1,
+                    child: Text('${index + 1}'),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: reviewController,
+                decoration: const InputDecoration(
+                  labelText: 'Opinia',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Anuluj'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final String review = reviewController.text;
+                if (review.isNotEmpty) {
+                  // Zapisz opinię do Firestore
+                  await _saveReviewToFirestore(review, rating);
+
+                  // Oznacz zadanie jako zakończone
+                  await _markTaskAsCompleted();
+
+                  // Wywołaj funkcję zwrotną
+                  onSubmitReview(review, rating);
+                }
+                Navigator.of(context).pop();
+              },
+              child: const Text('Zatwierdź'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _saveReviewToFirestore(String review, int rating) async {
+    try {
+      final userRef =
+          FirebaseFirestore.instance.collection('D_Users').doc(assignedUserId);
+
+      // Dodaj opinię do danych użytkownika
+      await userRef.collection('reviews').add({
+        'review': review,
+        'rating': rating,
+        'timestamp': Timestamp.now(),
+      });
+
+      print("Opinia została zapisana pomyślnie!");
+    } catch (e) {
+      print("Błąd podczas zapisywania opinii: $e");
+    }
+  }
+
+  Future<void> _markTaskAsCompleted() async {
+    final taskRef = FirebaseFirestore.instance.collection('tasks').doc(taskId);
+
+    // Oznacz zadanie jako zakończone
+    await taskRef.update({
+      'completed': true,
+      'completionTimestamp': Timestamp.now(),
     });
   }
 }
