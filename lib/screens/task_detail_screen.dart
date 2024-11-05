@@ -4,12 +4,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stutask/bloc/screen_controller.dart';
 
 class TaskDetailScreen extends StatelessWidget {
+  const TaskDetailScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final arguments = ModalRoute.of(context)!.settings.arguments as Map;
     final String taskId = arguments['taskId'];
     final User? user = FirebaseAuth.instance.currentUser;
-    final ScreenController _screenController = ScreenController();
+    final ScreenController screenController = ScreenController();
 
     return FutureBuilder<DocumentSnapshot>(
       future: FirebaseFirestore.instance.collection('tasks').doc(taskId).get(),
@@ -120,9 +122,8 @@ class TaskDetailScreen extends StatelessWidget {
                                 taskData['userId'] == userId
                             ? ElevatedButton(
                                 onPressed: () {
-                                  _screenController
-                                      .navigateToApplicationsScreen(
-                                          context, taskId);
+                                  screenController.navigateToApplicationsScreen(
+                                      context, taskId);
                                 },
                                 child: const Text('Zobacz aplikacje'),
                               )

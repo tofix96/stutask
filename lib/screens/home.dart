@@ -10,6 +10,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stutask/screens/seetings_screen.dart';
 import 'package:stutask/bloc/screen_controller.dart';
 
+int selectedIndex = 0;
+
 class HomePage extends StatefulWidget {
   final User? user;
   final bool showEmployerTasks;
@@ -22,10 +24,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
   final ScreenController _screenController = ScreenController();
 
-  static List<Widget> _widgetOptions(User user, bool showEmployerTasks) =>
+  static List<Widget> _widgetOptions(
+    User user,
+    bool showEmployerTasks,
+  ) =>
       <Widget>[
         TaskListView(user: user, showEmployerTasks: showEmployerTasks),
         CreateTaskScreen(),
@@ -35,12 +39,16 @@ class _HomePageState extends State<HomePage> {
 
   void _onItemTapped(int index) {
     setState(() {
-      _selectedIndex = index;
+      selectedIndex = index;
     });
     // Przejdź do `HomePage` z filtrowaniem `false`, gdy wybrano zakładkę z listą zadań
     if (index == 0) {
       _screenController.navigateToHome(context, widget.user,
           showEmployerTasks: false);
+    }
+    if (index == 2) {
+      _screenController.navigateToHome(context, widget.user,
+          showEmployerTasks: true);
     }
   }
 
@@ -66,14 +74,14 @@ class _HomePageState extends State<HomePage> {
       ),
       body: widget.user != null
           ? _widgetOptions(widget.user!, widget.showEmployerTasks)
-              .elementAt(_selectedIndex)
+              .elementAt(selectedIndex)
           : const Center(child: Text('Nie znaleziono danych użytkownika.')),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
-            label: 'Lista Zadań',
+            label: 'Zadania',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.add),
@@ -88,7 +96,7 @@ class _HomePageState extends State<HomePage> {
             label: 'Profil',
           ),
         ],
-        currentIndex: _selectedIndex,
+        currentIndex: selectedIndex,
         selectedItemColor: const Color.fromARGB(255, 255, 153, 0),
         onTap: _onItemTapped,
       ),
@@ -96,54 +104,133 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// Widget do wyświetlania listy z zadaniami
-class TaskListView extends StatelessWidget {
+class TaskListView extends StatefulWidget {
   final User user;
   final bool showEmployerTasks;
 
   const TaskListView(
-      {required this.user, this.showEmployerTasks = false, Key? key})
-      : super(key: key);
+      {required this.user, this.showEmployerTasks = false, super.key});
+
+  @override
+  _TaskListViewState createState() => _TaskListViewState();
+}
+
+class _TaskListViewState extends State<TaskListView> {
+  String _sortField = 'Nazwa'; // Domyślne pole sortowania
+  bool _isAscending = true; // Domyślne sortowanie rosnące
+  String _category = 'Wszystkie'; // Domyślna kategoria
 
   @override
   Widget build(BuildContext context) {
-    // Dodaj filtr dla zadań, aby wyświetlić tylko zadania utworzone przez pracodawcę
-    final taskStream = showEmployerTasks
-        ? FirebaseFirestore.instance
-            .collection('tasks')
-            .where('userId', isEqualTo: user.uid)
-            .snapshots()
-        : FirebaseFirestore.instance.collection('tasks').snapshots();
+    // Konfiguruj strumień z uwzględnieniem sortowania i filtrowania
+    final taskQuery = FirebaseFirestore.instance.collection('tasks');
+    Query taskStream;
 
-    return StreamBuilder(
-      stream: taskStream,
-      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
+    // Ustawienie filtrowania dla użytkownika pracodawcy i wybranej kategorii
+    if (widget.showEmployerTasks) {
+      taskStream = taskQuery.where('userId', isEqualTo: widget.user.uid);
+    } else {
+      taskStream = taskQuery;
+    }
 
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return const Center(child: Text('Brak zadań do wyświetlenia.'));
-        }
+    // Dodanie filtrowania po kategorii, jeśli kategoria nie jest „Wszystkie”
+    if (_category != 'Wszystkie') {
+      taskStream = taskStream.where('Kategoria', isEqualTo: _category);
+    }
 
-        final tasks = snapshot.data!.docs;
+    // Dodanie sortowania
+    taskStream = taskStream.orderBy(_sortField, descending: !_isAscending);
 
-        return ListView.builder(
-          padding: const EdgeInsets.all(16.0),
-          itemCount: tasks.length,
-          itemBuilder: (context, index) {
-            final task = tasks[index];
+    return Column(
+      children: [
+        if (selectedIndex == 0) ...[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              DropdownButton<String>(
+                value: _sortField,
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _sortField = value;
+                    });
+                  }
+                },
+                items: <String>['Nazwa', 'Cena', 'Czas']
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text('Sortuj wg $value'),
+                  );
+                }).toList(),
+              ),
+              IconButton(
+                icon: Icon(
+                  _isAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _isAscending = !_isAscending;
+                  });
+                },
+              ),
+              DropdownButton<String>(
+                value: _category,
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _category = value;
+                    });
+                  }
+                },
+                items: <String>[
+                  'Wszystkie',
+                  'korepetycje',
+                  'remont',
+                  'Kategoria3'
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text('Kategoria: $value'),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ],
+        Expanded(
+          child: StreamBuilder(
+            stream: taskStream.snapshots(),
+            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            return TaskTile(
-              taskId: task.id,
-              taskTitle: task['Nazwa'],
-              taskDescription: task['Opis'],
-              price: task['Cena'].toString(),
-              imageUrl: task['zdjecie'],
-            );
-          },
-        );
-      },
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(child: Text('Brak zadań do wyświetlenia.'));
+              }
+
+              final tasks = snapshot.data!.docs;
+
+              return ListView.builder(
+                padding: const EdgeInsets.all(16.0),
+                itemCount: tasks.length,
+                itemBuilder: (context, index) {
+                  final task = tasks[index];
+
+                  return TaskTile(
+                    taskId: task.id,
+                    taskTitle: task['Nazwa'],
+                    taskDescription: task['Opis'],
+                    price: task['Cena'].toString(),
+                    imageUrl: task['zdjecie'],
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -166,11 +253,11 @@ class TaskTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _screenController = ScreenController();
+    final screenController = ScreenController();
 
     return InkWell(
       onTap: () {
-        _screenController.navigateToTaskDetail(context, taskId);
+        screenController.navigateToTaskDetail(context, taskId);
       },
       child: Card(
         elevation: 5.0,

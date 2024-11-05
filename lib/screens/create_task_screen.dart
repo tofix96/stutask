@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:stutask/bloc/task_service.dart';
 
 class CreateTaskScreen extends StatefulWidget {
+  const CreateTaskScreen({super.key});
+
   @override
   _CreateTaskScreenState createState() => _CreateTaskScreenState();
 }

@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ApplicationsScreen extends StatelessWidget {
   final String taskId;
 
-  const ApplicationsScreen({required this.taskId, Key? key}) : super(key: key);
+  const ApplicationsScreen({required this.taskId, super.key});
 
   @override
   Widget build(BuildContext context) {
