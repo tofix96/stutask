@@ -52,22 +52,56 @@ class ApplicationsScreen extends StatelessWidget {
                   final String lastName =
                       userData['Nazwisko'] ?? 'Brak nazwiska';
                   final String age = userData['Wiek'] ?? 'Nieznany wiek';
-                  final String opinion = userData['opinia'] ?? 'Brak opinii';
 
-                  return ListTile(
-                    title: Text('$firstName $lastName'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Wiek: $age'),
-                        Text('Opinia: $opinion'),
-                      ],
-                    ),
-                    trailing: ElevatedButton(
-                      onPressed: () =>
-                          _assignUserToTask(context, taskId, userId),
-                      child: const Text('Przypisz'),
-                    ),
+                  return FutureBuilder<QuerySnapshot>(
+                    future: FirebaseFirestore.instance
+                        .collection('D_Users')
+                        .doc(
+                            userId) // Pobieramy dokument użytkownika o odpowiednim userId
+                        .collection(
+                            'reviews') // Przechodzimy do podkolekcji reviews
+                        .get(),
+                    builder: (context, reviewSnapshot) {
+                      if (reviewSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+
+                      double averageRating = 0.0;
+                      String opinionText = 'Brak opinii';
+
+                      if (reviewSnapshot.hasData &&
+                          reviewSnapshot.data!.docs.isNotEmpty) {
+                        final reviews = reviewSnapshot.data!.docs;
+                        final totalRating = reviews.fold(
+                          0.0,
+                          (sum, review) =>
+                              sum + (review['rating'] as num).toDouble(),
+                        );
+                        averageRating = totalRating / reviews.length;
+                        opinionText =
+                            'Średnia ocena: ${averageRating.toStringAsFixed(1)}';
+                        print('Średnia ocena dla użytkownika: $averageRating');
+                      } else {
+                        print('Brak opinii dla użytkownika o ID: $userId');
+                      }
+
+                      return ListTile(
+                        title: Text('$firstName $lastName'),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Wiek: $age'),
+                            Text('Opinia: $opinionText'),
+                          ],
+                        ),
+                        trailing: ElevatedButton(
+                          onPressed: () =>
+                              _assignUserToTask(context, taskId, userId),
+                          child: const Text('Przypisz'),
+                        ),
+                      );
+                    },
                   );
                 },
               );

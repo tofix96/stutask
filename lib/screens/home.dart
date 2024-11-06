@@ -119,7 +119,7 @@ class _TaskListViewState extends State<TaskListView> {
   String _sortField = 'Nazwa'; // Domyślne pole sortowania
   bool _isAscending = true; // Domyślne sortowanie rosnące
   String _category = 'Wszystkie'; // Domyślna kategoria
-
+  final bool _completed = true;
   @override
   Widget build(BuildContext context) {
     // Konfiguruj strumień z uwzględnieniem sortowania i filtrowania
@@ -137,8 +137,8 @@ class _TaskListViewState extends State<TaskListView> {
     if (_category != 'Wszystkie') {
       taskStream = taskStream.where('Kategoria', isEqualTo: _category);
     }
-
     // Dodanie sortowania
+    taskStream = taskStream.where('completed', isNotEqualTo: _completed);
     taskStream = taskStream.orderBy(_sortField, descending: !_isAscending);
 
     return Column(
@@ -187,11 +187,11 @@ class _TaskListViewState extends State<TaskListView> {
                   'Wszystkie',
                   'korepetycje',
                   'remont',
-                  'Kategoria3'
+                  'prace przydomowe'
                 ].map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text('Kategoria: $value'),
+                    child: Text('Kat: $value'),
                   );
                 }).toList(),
               ),

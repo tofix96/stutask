@@ -70,6 +70,7 @@ class TaskService {
         'Creator': creatorName ?? 'Nieznany',
         'zdjecie': imageUrl,
         'userId': user?.uid,
+        'completed': false,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(

@@ -165,7 +165,8 @@ class AssignedUserWidget extends StatelessWidget {
   final String assignedUserId; // ID przypisanego użytkownika
   final String taskId; // ID zadania
 
-  AssignedUserWidget({
+  const AssignedUserWidget({
+    super.key,
     required this.assignedUserName,
     required this.onSubmitReview,
     required this.assignedUserId,

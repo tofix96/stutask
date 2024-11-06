@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stutask/bloc/user_service.dart';
 
-//TEN EKRAN JEST OD PIERWSZEGO URUCHOMIENIA
-
 class UserInfoScreen extends StatefulWidget {
   const UserInfoScreen({super.key});
 
