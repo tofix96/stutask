@@ -48,7 +48,6 @@ class AuthProvider with ChangeNotifier {
           email: email, password: password);
       return credential.user;
     } catch (e) {
-      print("There was an error during registration: $e");
       return null;
     }
   }
@@ -63,7 +62,6 @@ class AuthProvider with ChangeNotifier {
       setToken(token); // Ustaw token po zalogowaniu
       return userCredential.user;
     } catch (e) {
-      print("Login failed: $e");
       return null;
     }
   }

@@ -25,6 +25,25 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final ScreenController _screenController = ScreenController();
+  String? accountType;
+  @override
+  void initState() {
+    super.initState();
+    _getAccountType(); // Pobierz typ konta przy inicjalizacji
+  }
+
+  Future<void> _getAccountType() async {
+    final userId = widget.user?.uid;
+    if (userId != null) {
+      final userSnapshot = await FirebaseFirestore.instance
+          .collection('D_Users')
+          .doc(userId)
+          .get();
+      setState(() {
+        accountType = userSnapshot.data()?['Typ_konta'];
+      });
+    }
+  }
 
   static List<Widget> _widgetOptions(
     User user,
@@ -32,9 +51,9 @@ class _HomePageState extends State<HomePage> {
   ) =>
       <Widget>[
         TaskListView(user: user, showEmployerTasks: showEmployerTasks),
-        CreateTaskScreen(),
         TaskListView(user: user, showEmployerTasks: true),
         SettingsScreen(),
+        CreateTaskScreen(),
       ];
 
   void _onItemTapped(int index) {
@@ -46,7 +65,7 @@ class _HomePageState extends State<HomePage> {
       _screenController.navigateToHome(context, widget.user,
           showEmployerTasks: false);
     }
-    if (index == 2) {
+    if (index == 1) {
       _screenController.navigateToHome(context, widget.user,
           showEmployerTasks: true);
     }
@@ -78,14 +97,10 @@ class _HomePageState extends State<HomePage> {
           : const Center(child: Text('Nie znaleziono danych użytkownika.')),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.list),
             label: 'Zadania',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add),
-            label: 'Dodaj Zadanie',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.filter_list),
@@ -95,6 +110,12 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.face),
             label: 'Profil',
           ),
+          if (accountType ==
+              'Pracodawca') // Wyświetl "Dodaj zadanie" tylko dla pracodawców
+            const BottomNavigationBarItem(
+              icon: Icon(Icons.add),
+              label: 'Dodaj Zadanie',
+            ),
         ],
         currentIndex: selectedIndex,
         selectedItemColor: const Color.fromARGB(255, 255, 153, 0),

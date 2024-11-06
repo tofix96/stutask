@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:stutask/screens/chat_screen.dart';
 
 class ApplicationsScreen extends StatelessWidget {
   final String taskId;
@@ -95,10 +97,22 @@ class ApplicationsScreen extends StatelessWidget {
                             Text('Opinia: $opinionText'),
                           ],
                         ),
-                        trailing: ElevatedButton(
-                          onPressed: () =>
-                              _assignUserToTask(context, taskId, userId),
-                          child: const Text('Przypisz'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ElevatedButton(
+                              onPressed: () =>
+                                  _assignUserToTask(context, taskId, userId),
+                              child: const Text('Przypisz'),
+                            ),
+                            const SizedBox(
+                                width: 8), // Odstęp między przyciskami
+                            ElevatedButton(
+                              onPressed: () =>
+                                  _startChat(context, taskId, userId),
+                              child: const Text('Chat'),
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -121,5 +135,31 @@ class ApplicationsScreen extends StatelessWidget {
     });
 
     Navigator.pop(context); // Cofnięcie do poprzedniego ekranu po przypisaniu
+  }
+
+  Future<void> _startChat(
+      BuildContext context, String taskId, String userId) async {
+    final chatRef =
+        FirebaseFirestore.instance.collection('chats').doc('$taskId-$userId');
+
+    final chatSnapshot = await chatRef.get();
+
+    // Jeśli chat jeszcze nie istnieje, zainicjujemy nowy
+    if (!chatSnapshot.exists) {
+      await chatRef.set({
+        'taskId': taskId,
+        'workerId': userId,
+        'employerId': FirebaseAuth.instance.currentUser!.uid,
+        'createdAt': Timestamp.now(),
+      });
+    }
+
+    // Przejdź do ekranu chatu (trzeba mieć już przygotowany ekran ChatScreen)
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatScreen(chatId: chatRef.id),
+      ),
+    );
   }
 }

@@ -10,8 +10,6 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  String? _selectedAccountType; // Zmienna przechowująca wybrany typ konta
-
   // Kontrolery dla pól tekstowych
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -97,29 +95,6 @@ class _RegisterPageState extends State<RegisterPage> {
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
                       borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: DropdownButtonFormField<String>(
-                      dropdownColor: Colors.grey[200],
-                      value: _selectedAccountType,
-                      style: const TextStyle(color: Colors.black),
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                      ),
-                      hint: const Text(
-                        'Account Type',
-                        style: TextStyle(color: Colors.black),
-                      ),
-                      items: ['Employee', 'Employer']
-                          .map((type) => DropdownMenuItem<String>(
-                                value: type,
-                                child: Text(type),
-                              ))
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedAccountType = value;
-                        });
-                      },
                     ),
                   ),
                   const SizedBox(height: 40),
