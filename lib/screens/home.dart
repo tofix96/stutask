@@ -76,10 +76,21 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Stutask'),
-        backgroundColor: Color.fromRGBO(239, 120, 16, 0.968),
+        backgroundColor: const Color.fromRGBO(239, 120, 16, 0.968),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.chat), // Ikona czatu
+            onPressed: () {
+              // Akcja po kliknięciu ikony czatu
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                    builder: (_) =>
+                        const LoginPage()), // Przejście do ekranu czatu
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.logout), // Ikona wylogowania
             onPressed: () {
               FirebaseAuth.instance.signOut();
               Provider.of<custom_auth.AuthProvider>(context, listen: false)

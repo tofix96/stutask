@@ -93,6 +93,8 @@ class TaskDetailScreen extends StatelessWidget {
                         future: FirebaseFirestore.instance
                             .collection('D_Users')
                             .doc(assignedUserId)
+                            // .collection('applications')
+                            // .doc(userId)
                             .get(),
                         builder: (context, assignedUserSnapshot) {
                           if (assignedUserSnapshot.connectionState ==
@@ -106,6 +108,13 @@ class TaskDetailScreen extends StatelessWidget {
 
                           final assignedUserData = assignedUserSnapshot.data!
                               .data() as Map<String, dynamic>;
+                          // Pobranie dokumentów z kolekcji 'applications'
+                          // final applications = assignedUserSnapshot.data!.data()
+                          //     as Map<String, dynamic>;
+
+                          // final aplication_id = {
+                          //   applications['userId']
+                          // }; // nie dokończone howanie przycisku
 
                           return AssignedUserWidget(
                             assignedUserName:
@@ -120,10 +129,12 @@ class TaskDetailScreen extends StatelessWidget {
                         },
                       );
                     }
+
                     if (complated != true) {
                       return accountType == 'Pracownik'
                           ? ElevatedButton(
-                              onPressed: () => _applyForTask(taskId, userId),
+                              onPressed: () =>
+                                  _applyForTask(taskId, userId, context),
                               child: const Text('Aplikuj'),
                             )
                           : accountType == 'Pracodawca' &&
@@ -150,12 +161,33 @@ class TaskDetailScreen extends StatelessWidget {
     );
   }
 
-  void _applyForTask(String taskId, String userId) async {
-    final taskRef = FirebaseFirestore.instance.collection('tasks').doc(taskId);
-    await taskRef.collection('applications').doc(userId).set({
-      'userId': userId,
-      'appliedAt': Timestamp.now(),
-    });
+  void _applyForTask(String taskId, String userId, BuildContext context) async {
+    try {
+      final taskRef =
+          FirebaseFirestore.instance.collection('tasks').doc(taskId);
+
+      // Zapisanie aplikacji w bazie danych
+      await taskRef.collection('applications').doc(userId).set({
+        'userId': userId,
+        'appliedAt': Timestamp.now(),
+      });
+
+      // Wyświetlenie komunikatu o sukcesie
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Aplikacja została wysłana pomyślnie!'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    } catch (e) {
+      // Wyświetlenie komunikatu o błędzie
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Wystąpił błąd: $e'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
   }
 }
 
@@ -175,18 +207,40 @@ class AssignedUserWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Przypisano do: $assignedUserName'),
-        const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: () {
-            _showReviewDialog(context);
-          },
-          child: const Text('Wystaw opinię i zakończ zadanie'),
-        ),
-      ],
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    return FutureBuilder<DocumentSnapshot>(
+      future:
+          FirebaseFirestore.instance.collection('D_Users').doc(user?.uid).get(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (!snapshot.hasData || !snapshot.data!.exists) {
+          return const Text('Brak danych użytkownika.');
+        }
+
+        final userData = snapshot.data!.data() as Map<String, dynamic>;
+        final String accountType = userData['Typ_konta'];
+
+        if (accountType != 'Pracodawca') {
+          return const Text('To zadanie jest już w trakcie realizacji');
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Przypisano do: $assignedUserName'),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: () {
+                _showReviewDialog(context);
+              },
+              child: const Text('Wystaw opinię i zakończ zadanie'),
+            ),
+          ],
+        );
+      },
     );
   }
 
