@@ -11,7 +11,6 @@ import 'package:stutask/screens/user_info_screen.dart';
 import 'package:stutask/screens/application_screen.dart';
 
 class ScreenController {
-  // Funkcja logowania użytkownika
   Future<void> loginUser(
       BuildContext context, String email, String password) async {
     try {
@@ -20,7 +19,6 @@ class ScreenController {
       User? user = await authProvider.loginUser(email, password);
 
       if (user != null) {
-        // Sprawdź, czy użytkownik ma już zapisane dane
         final userData = await FirebaseFirestore.instance
             .collection('D_Users')
             .doc(user.uid)
@@ -30,16 +28,14 @@ class ScreenController {
           // Użytkownik ma już dane, przejdź do ekranu głównego
           Navigator.pushReplacementNamed(
             context,
-            '/home', // Przekierowanie do HomePage
-            arguments: user, // Przekazanie użytkownika jako argument
+            '/home',
+            arguments: user,
           );
         } else {
-          // Użytkownik nie ma jeszcze danych, przejdź do ekranu wprowadzania informacji
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (context) =>
-                  UserInfoScreen(), // Ekran wprowadzania danych
+              builder: (context) => UserInfoScreen(),
             ),
           );
         }
@@ -51,7 +47,6 @@ class ScreenController {
     }
   }
 
-  // Metoda do nawigacji do ekranu rejestracji
   void navigateToRegister(BuildContext context) {
     Navigator.push(
       context,
@@ -85,6 +80,20 @@ class ScreenController {
       MaterialPageRoute(
         builder: (context) => ApplicationsScreen(taskId: taskId),
       ),
+    );
+  }
+
+  void navigateToChatOverview(BuildContext context) {
+    Navigator.pushNamed(context, '/chat-overview');
+  }
+
+  void navigateToChatScreen(BuildContext context, String chatId) {
+    Navigator.pushNamed(
+      context,
+      '/chat',
+      arguments: {
+        'chatId': chatId,
+      },
     );
   }
 }

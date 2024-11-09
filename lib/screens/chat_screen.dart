@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:stutask/bloc/screen_controller.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
+  final ScreenController screenController = ScreenController();
 
-  const ChatScreen({required this.chatId, Key? key}) : super(key: key);
+  ChatScreen({required this.chatId, Key? key}) : super(key: key);
 
   @override
   _ChatScreenState createState() => _ChatScreenState();

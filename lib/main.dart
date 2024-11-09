@@ -11,6 +11,8 @@ import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase User
 import 'screens/seetings_screen.dart';
 import 'screens/user_info_screen.dart'; // Import UserInfoScreen
 import 'package:stutask/screens/task_detail_screen.dart';
+import 'package:stutask/screens/chat_screen.dart';
+import 'package:stutask/screens/chats_overview_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding
@@ -67,6 +69,11 @@ class MyApp extends StatelessWidget {
           '/applications': (context) {
             final args = ModalRoute.of(context)!.settings.arguments as Map;
             return ApplicationsScreen(taskId: args['taskId']);
+          },
+          '/chat-overview': (context) => ChatOverviewScreen(),
+          '/chat': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments as Map;
+            return ChatScreen(chatId: args['chatId']);
           },
         },
       ),

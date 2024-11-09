@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stutask/bloc/auth_providers.dart' as custom_auth;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:stutask/screens/chats_overview_screen.dart';
 import 'package:stutask/screens/login_screen.dart';
 import 'package:stutask/screens/create_task_screen.dart'; // Import ekranu tworzenia zadania
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -85,7 +86,7 @@ class _HomePageState extends State<HomePage> {
               Navigator.of(context).push(
                 MaterialPageRoute(
                     builder: (_) =>
-                        const LoginPage()), // Przejście do ekranu czatu
+                        ChatOverviewScreen()), // Przejście do ekranu czatu
               );
             },
           ),
