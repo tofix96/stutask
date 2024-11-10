@@ -7,7 +7,7 @@ class ChatScreen extends StatefulWidget {
   final String chatId;
   final ScreenController screenController = ScreenController();
 
-  ChatScreen({required this.chatId, Key? key}) : super(key: key);
+  ChatScreen({required this.chatId, super.key});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();

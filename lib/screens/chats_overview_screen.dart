@@ -60,7 +60,6 @@ class ChatOverviewScreen extends StatelessWidget {
               final workerId = chatData['workerId'];
               final employerId = chatData['employerId'];
 
-              // Determine if the user is the employer or worker
               final isEmployer = user.uid == employerId;
 
               return FutureBuilder<DocumentSnapshot>(

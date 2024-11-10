@@ -54,20 +54,41 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             child: Column(
               children: [
                 TextFormField(
+                  maxLength: 50, // Maksymalna liczba znaków
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Nazwa zadania'),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Wprowadź nazwę zadania'
-                      : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Nazwa zadania',
+                    counterText: '', // Opcjonalnie ukrycie licznika znaków
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Wprowadź nazwę zadania';
+                    }
+                    if (value.length > 50) {
+                      return 'Nazwa zadania nie może przekraczać 50 znaków';
+                    }
+                    return null;
+                  },
                 ),
                 TextFormField(
+                  maxLength: 300, // Maksymalna liczba znaków
                   controller: _descriptionController,
-                  decoration: const InputDecoration(labelText: 'Opis zadania'),
-                  validator: (value) => value == null || value.isEmpty
-                      ? 'Wprowadź opis zadania'
-                      : null,
+                  decoration: const InputDecoration(
+                    labelText: 'Opis',
+                    counterText: '', // Opcjonalnie ukrycie licznika znaków
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Wprowadź nazwę zadania';
+                    }
+                    if (value.length > 300) {
+                      return 'Opis zadania nie może przekraczać 300 znaków';
+                    }
+                    return null;
+                  },
                 ),
                 TextFormField(
+                  maxLength: 5,
                   controller: _priceController,
                   decoration: const InputDecoration(labelText: 'Cena (PLN)'),
                   keyboardType: TextInputType.number,
@@ -79,8 +100,30 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 ),
                 TextFormField(
                   controller: _timeController,
-                  decoration:
-                      const InputDecoration(labelText: 'Czas wykonania'),
+                  readOnly:
+                      true, // Pole tylko do odczytu, aby nie można było edytować ręcznie
+                  decoration: const InputDecoration(
+                    labelText: 'Czas wykonania',
+                    suffixIcon: Icon(Icons.calendar_today), // Ikona kalendarza
+                  ),
+                  onTap: () async {
+                    // Wyświetl okno wyboru daty
+                    final selectedDate = await showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate:
+                          DateTime.now(), // Nie można wybrać dat z przeszłości
+                      lastDate: DateTime(2100),
+                    );
+
+                    if (selectedDate != null) {
+                      // Aktualizuj pole z wybraną datą
+                      setState(() {
+                        _timeController.text =
+                            '${selectedDate.day}-${selectedDate.month}-${selectedDate.year}';
+                      });
+                    }
+                  },
                   validator: (value) => value == null || value.isEmpty
                       ? 'Wprowadź czas wykonania zadania'
                       : null,

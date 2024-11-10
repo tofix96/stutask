@@ -71,6 +71,7 @@ class TaskService {
         'zdjecie': imageUrl,
         'userId': user?.uid,
         'completed': false,
+        'createdAt': Timestamp.now(),
       });
 
       ScaffoldMessenger.of(context).showSnackBar(

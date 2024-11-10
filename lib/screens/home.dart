@@ -152,28 +152,62 @@ class _TaskListViewState extends State<TaskListView> {
   String _sortField = 'Nazwa'; // Domyślne pole sortowania
   bool _isAscending = true; // Domyślne sortowanie rosnące
   String _category = 'Wszystkie'; // Domyślna kategoria
-  final bool _completed = true;
+  List<Map<String, dynamic>> localData = []; // Dane lokalne
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchData(); // Pobranie danych
+  }
+
+  Future<void> _fetchData() async {
+    try {
+      // Pobranie danych z Firestore
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('tasks')
+          .where('completed', isEqualTo: false)
+          .get();
+
+      setState(() {
+        localData = snapshot.docs.map((doc) {
+          final data = doc.data() as Map<String, dynamic>;
+          data['id'] = doc.id; // Dodanie identyfikatora dokumentu
+          return data;
+        }).toList();
+      });
+    } catch (e) {
+      print('Błąd podczas pobierania danych: $e');
+    }
+  }
+
+  List<Map<String, dynamic>> _applyFiltersAndSorting() {
+    // Filtruj dane według kategorii
+    List<Map<String, dynamic>> filteredData = localData.where((task) {
+      if (_category == 'Wszystkie') {
+        return true;
+      }
+      return task['Kategoria'] == _category;
+    }).toList();
+
+    // Sortuj dane
+    filteredData.sort((a, b) {
+      int comparison = 0;
+      if (_sortField == 'Nazwa') {
+        comparison = a['Nazwa'].compareTo(b['Nazwa']);
+      } else if (_sortField == 'Cena') {
+        comparison = (a['Cena'] as num).compareTo(b['Cena'] as num);
+      } else if (_sortField == 'Czas') {
+        comparison = a['Czas'].compareTo(b['Czas']);
+      }
+
+      return _isAscending ? comparison : -comparison;
+    });
+
+    return filteredData;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Konfiguruj strumień z uwzględnieniem sortowania i filtrowania
-    final taskQuery = FirebaseFirestore.instance.collection('tasks');
-    Query taskStream;
-
-    // Ustawienie filtrowania dla użytkownika pracodawcy i wybranej kategorii
-    if (widget.showEmployerTasks) {
-      taskStream = taskQuery.where('userId', isEqualTo: widget.user.uid);
-    } else {
-      taskStream = taskQuery;
-    }
-
-    // Dodanie filtrowania po kategorii, jeśli kategoria nie jest „Wszystkie”
-    if (_category != 'Wszystkie') {
-      taskStream = taskStream.where('Kategoria', isEqualTo: _category);
-    }
-    // Dodanie sortowania
-    taskStream = taskStream.where('completed', isNotEqualTo: _completed);
-    taskStream = taskStream.orderBy(_sortField, descending: !_isAscending);
-
     return Column(
       children: [
         if (selectedIndex == 0) ...[
@@ -232,37 +266,27 @@ class _TaskListViewState extends State<TaskListView> {
           ),
         ],
         Expanded(
-          child: StreamBuilder(
-            stream: taskStream.snapshots(),
-            builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              }
+            child: localData.isEmpty
+                ? const Center(child: CircularProgressIndicator())
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: _applyFiltersAndSorting().length,
+                    itemBuilder: (context, index) {
+                      final task = _applyFiltersAndSorting()[index];
+                      print(task['Nazwa']);
 
-              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                return const Center(child: Text('Brak zadań do wyświetlenia.'));
-              }
-
-              final tasks = snapshot.data!.docs;
-
-              return ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: tasks.length,
-                itemBuilder: (context, index) {
-                  final task = tasks[index];
-
-                  return TaskTile(
-                    taskId: task.id,
-                    taskTitle: task['Nazwa'],
-                    taskDescription: task['Opis'],
-                    price: task['Cena'].toString(),
-                    imageUrl: task['zdjecie'],
-                  );
-                },
-              );
-            },
-          ),
-        ),
+                      return TaskTile(
+                        taskId: task['id'] ?? '', // Zabezpieczenie przed `null`
+                        taskTitle: task['Nazwa'] ??
+                            'Brak nazwy', // Domyślna wartość, jeśli `null`
+                        taskDescription: task['Opis'] ?? 'Brak opisu',
+                        price: (task['Cena'] ?? 0)
+                            .toString(), // Domyślna wartość dla liczby
+                        imageUrl: task['zdjecie'] ??
+                            '', // Domyślna wartość dla obrazu
+                      );
+                    },
+                  )),
       ],
     );
   }
