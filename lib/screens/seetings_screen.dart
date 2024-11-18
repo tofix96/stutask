@@ -92,27 +92,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 30),
-                  TextFormField(
-                    controller: _bioController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: InputDecoration(
-                      labelText: 'Bio',
-                      labelStyle: const TextStyle(color: Colors.white),
-                      filled: true,
-                      fillColor: Colors.white.withOpacity(0.2),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Enter your bio';
-                      }
-                      return null;
-                    },
-                  ),
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _firstNameController,
@@ -174,6 +153,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       if (value == null || value.isEmpty) {
                         return 'Enter your age';
                       }
+                      final age = int.tryParse(value);
+                      if (age == null) {
+                        return 'Enter a valid number';
+                      }
+                      if (age < 16) {
+                        return 'You must be at least 16 years old';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  TextFormField(
+                    controller: _bioController,
+                    style: const TextStyle(color: Colors.white),
+                    minLines: 2,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      labelText: 'Bio',
+                      labelStyle: const TextStyle(color: Colors.white),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.2),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Enter your bio';
+                      }
                       return null;
                     },
                   ),
@@ -187,7 +196,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 80,
+                        horizontal: 50,
                         vertical: 15,
                       ),
                       shape: RoundedRectangleBorder(

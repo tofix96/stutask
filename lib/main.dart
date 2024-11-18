@@ -50,10 +50,49 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => custom_auth.AuthProvider(), // Dodanie AuthProvider
+      create: (context) => custom_auth.AuthProvider(),
       child: MaterialApp(
-        debugShowCheckedModeBanner: false, // Usunięcie "debug" z ekranu
-        initialRoute: '/', // Domyślna trasa (login)
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          primaryColor:
+              Color.fromARGB(255, 51, 52, 58), // Główny kolor aplikacji
+          colorScheme: ColorScheme.fromSwatch(
+            primarySwatch: Colors.deepOrange, // Zmień na żądany kolor
+          ).copyWith(
+            secondary:
+                Color.fromARGB(255, 51, 52, 58), // Akcenty (np. przyciski)
+          ),
+          inputDecorationTheme: const InputDecorationTheme(
+            focusedBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                  color: Color.fromARGB(
+                      255, 51, 52, 58)), // Kolor linii po kliknięciu
+            ),
+            enabledBorder: UnderlineInputBorder(
+              borderSide: BorderSide(
+                  color: Color(0xFFEF6C00)), // Kolor linii bez kliknięcia
+            ),
+            labelStyle: TextStyle(
+              color: Color.fromARGB(255, 51, 52, 58), // Kolor tekstu etykiety
+            ),
+          ),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Colors.transparent, // Przezroczyste tło
+            titleTextStyle: TextStyle(
+              color: Colors.white,
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              shadows: [
+                Shadow(
+                  blurRadius: 10.0,
+                  color: Colors.black45,
+                  offset: Offset(2, 2),
+                ),
+              ],
+            ),
+          ),
+        ),
+        initialRoute: '/',
         routes: {
           '/': (context) => const LoginPage(),
           '/home': (context) => HomePage(
@@ -61,8 +100,8 @@ class MyApp extends StatelessWidget {
                 showEmployerTasks: false,
               ),
           '/home-employer-tasks': (context) => HomePage(
-              user: FirebaseAuth
-                  .instance.currentUser), // Zadania danego pracodawcy
+                user: FirebaseAuth.instance.currentUser,
+              ),
           '/user-info': (context) => UserInfoScreen(),
           '/settings': (context) => SettingsScreen(),
           '/task-detail': (context) => TaskDetailScreen(),
@@ -79,4 +118,32 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+}
+
+class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+
+  const GradientAppBar({Key? key, required this.title}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      title: Text(title),
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Color(0xFFEF6C00), // Pomarańczowy
+              Color(0xFFFFC107), // Jaśniejszy pomarańczowy
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }

@@ -30,6 +30,31 @@ class TaskDetailScreen extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Szczegóły zadania'),
+            titleTextStyle: const TextStyle(
+              color: Colors.white,
+              fontSize: 20.0,
+              fontWeight: FontWeight.bold,
+              shadows: [
+                Shadow(
+                  blurRadius: 10.0,
+                  color: Colors.black45,
+                  offset: Offset(2, 2),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.transparent,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xFFEF6C00), // Pomarańczowy
+                    Color(0xFFFFC107), // Jaśniejszy pomarańczowy
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
           ),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -42,11 +67,6 @@ class TaskDetailScreen extends StatelessWidget {
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Opis: ${taskData['Opis']}',
-                  style: const TextStyle(fontSize: 16),
                 ),
                 const SizedBox(height: 10),
                 Text(
@@ -68,6 +88,11 @@ class TaskDetailScreen extends StatelessWidget {
                     ? Image.network(taskData['zdjecie'])
                     : const Text('Brak zdjęcia'),
                 const SizedBox(height: 20),
+                Text(
+                  'Opis: ${taskData['Opis']}',
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 10),
                 FutureBuilder<DocumentSnapshot>(
                   future: FirebaseFirestore.instance
                       .collection('D_Users')

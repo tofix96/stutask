@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stutask/bloc/screen_controller.dart';
+import 'package:stutask/main.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
@@ -38,9 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat'),
-      ),
+      appBar: GradientAppBar(title: 'Chat'),
       body: Column(
         children: [
           // Wyświetlanie wiadomości
@@ -76,8 +75,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Container(
                           padding: const EdgeInsets.all(10.0),
                           decoration: BoxDecoration(
-                            color:
-                                isMe ? Colors.blueAccent : Colors.grey.shade300,
+                            color: isMe
+                                ? const Color.fromARGB(255, 243, 163, 4)
+                                : Colors.grey.shade300,
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                           child: Text(

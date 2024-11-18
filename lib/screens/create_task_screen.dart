@@ -73,6 +73,8 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                 TextFormField(
                   maxLength: 300, // Maksymalna liczba znaków
                   controller: _descriptionController,
+                  minLines: 5, // Minimalna liczba linii tekstu
+                  maxLines: 10,
                   decoration: const InputDecoration(
                     labelText: 'Opis',
                     counterText: '', // Opcjonalnie ukrycie licznika znaków

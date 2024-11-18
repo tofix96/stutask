@@ -77,10 +77,45 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Stutask'),
-        backgroundColor: const Color.fromRGBO(239, 120, 16, 0.968),
+        titleTextStyle: const TextStyle(
+          color: Colors.white, // Zmień kolor na żądany
+          fontSize: 28.0, // Opcjonalnie zmień rozmiar czcionki
+          fontWeight: FontWeight.bold,
+          shadows: [
+            Shadow(
+              blurRadius: 10.0,
+              color: Colors.black45,
+              offset: Offset(2, 2),
+            ),
+          ], // Opcjonalnie ustaw styl czcionki
+        ),
+        backgroundColor: Colors.transparent, // Ustawienie przezroczystości
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0xFFEF6C00), // Pomarańczowy
+                Color(0xFFFFC107) // Jaśniejszy pomarańczowy
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.chat), // Ikona czatu
+            icon: Container(
+              decoration: const BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black54, // Kolor cienia
+                    blurRadius: 3, // Rozmycie cienia
+                    offset: Offset(1, 1), // Przesunięcie cienia
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.chat, color: Colors.white),
+            ),
             onPressed: () {
               // Akcja po kliknięciu ikony czatu
               Navigator.of(context).push(
@@ -91,7 +126,19 @@ class _HomePageState extends State<HomePage> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.logout), // Ikona wylogowania
+            icon: Container(
+              decoration: const BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Color.fromARGB(137, 37, 37, 37), // Kolor cienia
+                    blurRadius: 7, // Rozmycie cienia
+                    offset: Offset(0.5, 1), // Przesunięcie cienia
+                    spreadRadius: 0.001,
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.logout, color: Colors.white),
+            ), // Ikona wylogowania
             onPressed: () {
               FirebaseAuth.instance.signOut();
               Provider.of<custom_auth.AuthProvider>(context, listen: false)

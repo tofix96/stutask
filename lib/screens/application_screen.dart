@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stutask/screens/chat_screen.dart';
+import 'package:stutask/main.dart';
 
 class ApplicationsScreen extends StatelessWidget {
   final String taskId;
@@ -11,9 +12,7 @@ class ApplicationsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Lista aplikujących'),
-      ),
+      appBar: GradientAppBar(title: 'Lista aplikujacych'),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('tasks')
