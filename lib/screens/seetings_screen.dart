@@ -97,7 +97,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     controller: _firstNameController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      labelText: 'First Name',
+                      labelText: 'Imię',
                       labelStyle: const TextStyle(color: Colors.white),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.2),
@@ -108,7 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Enter your first name';
+                        return 'Podaj imię';
                       }
                       return null;
                     },
@@ -118,7 +118,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     controller: _lastNameController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      labelText: 'Last Name',
+                      labelText: 'Nazwisko',
                       labelStyle: const TextStyle(color: Colors.white),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.2),
@@ -129,7 +129,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Enter your last name';
+                        return 'Podaj nazwisko';
                       }
                       return null;
                     },

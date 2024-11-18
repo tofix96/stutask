@@ -209,12 +209,25 @@ class _TaskListViewState extends State<TaskListView> {
 
   Future<void> _fetchData() async {
     try {
-      // Pobranie danych z Firestore
-      QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('tasks')
-          .where('completed', isEqualTo: false)
-          .get();
+      QuerySnapshot snapshot;
 
+      if (widget.showEmployerTasks) {
+        // Jeśli wybrano "Moje zadania", filtruj tylko zadania użytkownika
+        snapshot = await FirebaseFirestore.instance
+            .collection('tasks')
+            .where('userId', isEqualTo: widget.user.uid)
+            .where('completed', isEqualTo: false) // Filtruj po użytkowniku
+            .get();
+      } else {
+        // Jeśli wybrano wszystkie zadania, filtruj tylko po "completed"
+        snapshot = await FirebaseFirestore.instance
+            .collection('tasks')
+            .where('completed', isEqualTo: false) // Filtruj po "completed"
+            .orderBy('createdAt')
+            .get();
+      }
+
+      // Przetwarzanie wyników
       setState(() {
         localData = snapshot.docs.map((doc) {
           final data = doc.data() as Map<String, dynamic>;
@@ -236,7 +249,7 @@ class _TaskListViewState extends State<TaskListView> {
       return task['Kategoria'] == _category;
     }).toList();
 
-    // Sortuj dane
+    // Sortuj dane lokalnie
     filteredData.sort((a, b) {
       int comparison = 0;
       if (_sortField == 'Nazwa') {

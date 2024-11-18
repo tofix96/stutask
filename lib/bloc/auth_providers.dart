@@ -16,7 +16,6 @@ class AuthProvider with ChangeNotifier {
   Future<void> registerUser(
       BuildContext context, String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
-      // Sprawdź, czy pola email i hasło są puste
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill all fields')),
       );
@@ -26,7 +25,6 @@ class AuthProvider with ChangeNotifier {
     try {
       User? user = await _signUpWithEmailAndPassword(email, password);
       if (user != null) {
-        setToken(await user.getIdToken()); // Ustaw token po rejestracji
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Registration successful!')),
         );

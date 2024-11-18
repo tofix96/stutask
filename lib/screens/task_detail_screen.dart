@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stutask/bloc/screen_controller.dart';
+import 'package:stutask/main.dart';
 
 class TaskDetailScreen extends StatelessWidget {
   const TaskDetailScreen({super.key});
@@ -28,160 +29,182 @@ class TaskDetailScreen extends StatelessWidget {
         final complated = taskData['completed'];
 
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Szczegóły zadania'),
-            titleTextStyle: const TextStyle(
-              color: Colors.white,
-              fontSize: 20.0,
-              fontWeight: FontWeight.bold,
-              shadows: [
-                Shadow(
-                  blurRadius: 10.0,
-                  color: Colors.black45,
-                  offset: Offset(2, 2),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.transparent,
-            flexibleSpace: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Color(0xFFEF6C00), // Pomarańczowy
-                    Color(0xFFFFC107), // Jaśniejszy pomarańczowy
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-              ),
-            ),
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Nazwa: ${taskData['Nazwa']}',
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Cena: ${taskData['Cena']} PLN',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Kategoria: ${taskData['Kategoria']}',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  'Czas: ${taskData['Czas']}',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 20),
-                taskData['zdjecie'] != null
-                    ? Image.network(taskData['zdjecie'])
-                    : const Text('Brak zdjęcia'),
-                const SizedBox(height: 20),
-                Text(
-                  'Opis: ${taskData['Opis']}',
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 10),
-                FutureBuilder<DocumentSnapshot>(
-                  future: FirebaseFirestore.instance
-                      .collection('D_Users')
-                      .doc(user?.uid)
-                      .get(),
-                  builder: (context, userSnapshot) {
-                    if (userSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    }
-                    if (!userSnapshot.hasData || !userSnapshot.data!.exists) {
-                      return const Text('Brak danych użytkownika.');
-                    }
+            appBar: GradientAppBar(title: 'Szczegóły zadania'),
+            body: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Tytuł zadania
+                    Align(
+                      alignment: Alignment.center, // Wyśrodkowanie tekstu
+                      child: Text(
+                        taskData['Nazwa'] ?? 'Brak nazwy',
+                        style: const TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
 
-                    final userData =
-                        userSnapshot.data!.data() as Map<String, dynamic>;
-                    final String accountType = userData['Typ_konta'];
-                    final String userId = user?.uid ?? '';
+                    // Karta z detalami
+                    Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            DetailRow(
+                              label: 'Cena:',
+                              value: '${taskData['Cena'] ?? 'Brak'} PLN',
+                            ),
+                            const SizedBox(height: 8),
+                            DetailRow(
+                              label: 'Kategoria:',
+                              value: taskData['Kategoria'] ?? 'Brak',
+                            ),
+                            const SizedBox(height: 8),
+                            DetailRow(
+                              label: 'Czas:',
+                              value: taskData['Czas'] ?? 'Brak',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
 
-                    // Sprawdź, czy jest przypisany pracownik
-                    if (assignedUserId != null && complated != true) {
-                      return FutureBuilder<DocumentSnapshot>(
-                        future: FirebaseFirestore.instance
-                            .collection('D_Users')
-                            .doc(assignedUserId)
-                            // .collection('applications')
-                            // .doc(userId)
-                            .get(),
-                        builder: (context, assignedUserSnapshot) {
-                          if (assignedUserSnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return const CircularProgressIndicator();
-                          }
-                          if (!assignedUserSnapshot.hasData ||
-                              !assignedUserSnapshot.data!.exists) {
-                            return const Text('Brak przypisanego pracownika.');
-                          }
+                    // Obraz
+                    if (taskData['zdjecie'] != null)
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          taskData['zdjecie'],
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    else
+                      const Center(
+                        child: Text(
+                          'Brak zdjęcia',
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+                      ),
+                    const SizedBox(height: 20),
 
-                          final assignedUserData = assignedUserSnapshot.data!
-                              .data() as Map<String, dynamic>;
-                          // Pobranie dokumentów z kolekcji 'applications'
-                          // final applications = assignedUserSnapshot.data!.data()
-                          //     as Map<String, dynamic>;
+                    // Opis
+                    Text(
+                      'Opis:',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      taskData['Opis'] ?? 'Brak opisu',
+                      style: const TextStyle(fontSize: 16, height: 1.5),
+                    ),
+                    const SizedBox(height: 30),
+                    const SizedBox(height: 10),
+                    FutureBuilder<DocumentSnapshot>(
+                      future: FirebaseFirestore.instance
+                          .collection('D_Users')
+                          .doc(user?.uid)
+                          .get(),
+                      builder: (context, userSnapshot) {
+                        if (userSnapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        }
+                        if (!userSnapshot.hasData ||
+                            !userSnapshot.data!.exists) {
+                          return const Text('Brak danych użytkownika.');
+                        }
 
-                          // final aplication_id = {
-                          //   applications['userId']
-                          // }; // nie dokończone howanie przycisku
+                        final userData =
+                            userSnapshot.data!.data() as Map<String, dynamic>;
+                        final String accountType = userData['Typ_konta'];
+                        final String userId = user?.uid ?? '';
 
-                          return AssignedUserWidget(
-                            assignedUserName:
-                                '${assignedUserData['Imię']} ${assignedUserData['Nazwisko']}',
-                            assignedUserId:
-                                assignedUserId, // Przekaż ID użytkownika
-                            taskId: taskId, // Przekaż ID zadania
-                            onSubmitReview: (review, rating) {
-                              print('Ocena: $rating, Opinia: $review');
+                        // Sprawdź, czy jest przypisany pracownik
+                        if (assignedUserId != null && complated != true) {
+                          return FutureBuilder<DocumentSnapshot>(
+                            future: FirebaseFirestore.instance
+                                .collection('D_Users')
+                                .doc(assignedUserId)
+                                // .collection('applications')
+                                // .doc(userId)
+                                .get(),
+                            builder: (context, assignedUserSnapshot) {
+                              if (assignedUserSnapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const CircularProgressIndicator();
+                              }
+                              if (!assignedUserSnapshot.hasData ||
+                                  !assignedUserSnapshot.data!.exists) {
+                                return const Text(
+                                    'Brak przypisanego pracownika.');
+                              }
+
+                              final assignedUserData =
+                                  assignedUserSnapshot.data!.data()
+                                      as Map<String, dynamic>;
+                              // Pobranie dokumentów z kolekcji 'applications'
+                              // final applications = assignedUserSnapshot.data!.data()
+                              //     as Map<String, dynamic>;
+
+                              // final aplication_id = {
+                              //   applications['userId']
+                              // }; // nie dokończone howanie przycisku
+
+                              return AssignedUserWidget(
+                                assignedUserName:
+                                    '${assignedUserData['Imię']} ${assignedUserData['Nazwisko']}',
+                                assignedUserId:
+                                    assignedUserId, // Przekaż ID użytkownika
+                                taskId: taskId, // Przekaż ID zadania
+                                onSubmitReview: (review, rating) {
+                                  print('Ocena: $rating, Opinia: $review');
+                                },
+                              );
                             },
                           );
-                        },
-                      );
-                    }
+                        }
 
-                    if (complated != true) {
-                      return accountType == 'Pracownik'
-                          ? ElevatedButton(
-                              onPressed: () =>
-                                  _applyForTask(taskId, userId, context),
-                              child: const Text('Aplikuj'),
-                            )
-                          : accountType == 'Pracodawca' &&
-                                  taskData['userId'] == userId
+                        if (complated != true) {
+                          return accountType == 'Pracownik'
                               ? ElevatedButton(
-                                  onPressed: () {
-                                    screenController
-                                        .navigateToApplicationsScreen(
-                                            context, taskId);
-                                  },
-                                  child: const Text('Zobacz aplikacje'),
+                                  onPressed: () =>
+                                      _applyForTask(taskId, userId, context),
+                                  child: const Text('Aplikuj'),
                                 )
-                              : const SizedBox();
-                    } else {
-                      return const Text('Zadanie zostało wykonane');
-                    }
-                  },
+                              : accountType == 'Pracodawca' &&
+                                      taskData['userId'] == userId
+                                  ? ElevatedButton(
+                                      onPressed: () {
+                                        screenController
+                                            .navigateToApplicationsScreen(
+                                                context, taskId);
+                                      },
+                                      child: const Text('Zobacz aplikacje'),
+                                    )
+                                  : const SizedBox();
+                        } else {
+                          return const Text('Zadanie zostało wykonane');
+                        }
+                      },
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        );
+              ),
+            ));
       },
     );
   }
@@ -213,6 +236,34 @@ class TaskDetailScreen extends StatelessWidget {
         ),
       );
     }
+  }
+}
+
+class DetailRow extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const DetailRow({Key? key, required this.label, required this.value})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Text(
+          value,
+          style: const TextStyle(fontSize: 16),
+        ),
+      ],
+    );
   }
 }
 

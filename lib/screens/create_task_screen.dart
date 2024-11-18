@@ -43,9 +43,6 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Utwórz nowe zadanie'),
-      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

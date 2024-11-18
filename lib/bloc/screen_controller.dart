@@ -56,7 +56,6 @@ class ScreenController {
 
   void navigateToHome(BuildContext context, User? user,
       {bool showEmployerTasks = false}) {
-    print('show: $showEmployerTasks');
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
