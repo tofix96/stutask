@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:stutask/screens/chat_screen.dart';
+import 'package:stutask/screens/chat/chat_screen.dart';
 import 'package:stutask/main.dart';
 
 class ApplicationsScreen extends StatelessWidget {

@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stutask/bloc/auth_providers.dart' as custom_auth;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:stutask/screens/chats_overview_screen.dart';
-import 'package:stutask/screens/login_screen.dart';
-import 'package:stutask/screens/create_task_screen.dart'; // Import ekranu tworzenia zadania
+import 'package:stutask/screens/chat/chats_overview_screen.dart';
+import 'package:stutask/screens/auth/login_screen.dart';
+import 'package:stutask/screens/tasks/create_task_screen.dart'; // Import ekranu tworzenia zadania
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:stutask/screens/seetings_screen.dart';
+import 'package:stutask/screens/profile/seetings_screen.dart';
 import 'package:stutask/bloc/screen_controller.dart';
 
 int selectedIndex = 0;

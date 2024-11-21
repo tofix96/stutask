@@ -2,17 +2,17 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Import dla kIsWeb
 import 'package:provider/provider.dart'; // Import dla Provider
-import 'package:firebase_app_check/firebase_app_check.dart'; // Import App Check
-import 'package:stutask/screens/application_screen.dart';
-import 'screens/login_screen.dart';
-import 'screens/home.dart'; // Import HomePage
-import 'bloc/auth_providers.dart' as custom_auth; // Import AuthProvider
-import 'package:firebase_auth/firebase_auth.dart'; // Import Firebase User
-import 'screens/seetings_screen.dart';
-import 'screens/user_info_screen.dart'; // Import UserInfoScreen
-import 'package:stutask/screens/task_detail_screen.dart';
-import 'package:stutask/screens/chat_screen.dart';
-import 'package:stutask/screens/chats_overview_screen.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:stutask/screens/tasks/application_screen.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/home.dart';
+import 'bloc/auth_providers.dart' as custom_auth;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'screens/profile/seetings_screen.dart';
+import 'screens/profile/user_info_screen.dart';
+import 'package:stutask/screens/tasks/task_detail_screen.dart';
+import 'package:stutask/screens/chat/chat_screen.dart';
+import 'package:stutask/screens/chat/chats_overview_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding

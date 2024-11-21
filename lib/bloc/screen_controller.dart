@@ -6,9 +6,9 @@ import 'package:stutask/bloc/auth_providers.dart'
     as custom_auth; // Alias dla AuthProvider
 import 'package:provider/provider.dart';
 import 'package:stutask/screens/home.dart';
-import 'package:stutask/screens/register_screen.dart';
-import 'package:stutask/screens/user_info_screen.dart';
-import 'package:stutask/screens/application_screen.dart';
+import 'package:stutask/screens/auth/register_screen.dart';
+import 'package:stutask/screens/profile/user_info_screen.dart';
+import 'package:stutask/screens/tasks/application_screen.dart';
 
 class ScreenController {
   Future<void> loginUser(
