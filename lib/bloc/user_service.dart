@@ -41,6 +41,17 @@ class UserService {
     }
   }
 
+  Future<UserModel> getCurrentUser() async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('User not logged in');
+
+    final userSnapshot =
+        await _firestore.collection('D_Users').doc(user.uid).get();
+    if (!userSnapshot.exists) throw Exception('User data not found');
+
+    return UserModel.fromFirestore(userSnapshot.data()!, user.uid);
+  }
+
   // Istniejąca funkcja zapisująca informacje o użytkowniku
   Future<void> saveUserInfo({
     required String bio,

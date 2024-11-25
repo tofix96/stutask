@@ -236,7 +236,6 @@ class _TaskListViewState extends State<TaskListView> {
   }
 
   List<Map<String, dynamic>> _applyFiltersAndSorting() {
-    // Filtruj dane według kategorii
     List<Map<String, dynamic>> filteredData = localData.where((task) {
       if (_category == 'Wszystkie') {
         return true;

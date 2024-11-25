@@ -51,6 +51,17 @@ class TaskService {
     });
   }
 
+  Future<void> applyForTask(String taskId) async {
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) return;
+
+    final taskRef = FirebaseFirestore.instance.collection('tasks').doc(taskId);
+    await taskRef.collection('applications').doc(currentUser.uid).set({
+      'userId': currentUser.uid,
+      'appliedAt': Timestamp.now(),
+    });
+  }
+
   //funkcja inicjalizujaca czat
   Future<void> startChat(
       String taskId, String userId, String employerId) async {
