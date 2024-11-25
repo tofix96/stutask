@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 10),
             Text(
-              'Login to your account',
+              'Zaloguj do konta',
               style: TextStyle(
                 color: Colors.white.withOpacity(0.9),
                 fontSize: 18,
@@ -49,7 +49,6 @@ class _LoginPageState extends State<LoginPage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 50),
-            // Pole e-mail
             TextFormField(
               controller: _emailController,
               style: const TextStyle(color: Colors.white),
@@ -66,13 +65,12 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             const SizedBox(height: 20),
-            // Pole hasło
             TextFormField(
               controller: _passwordController,
               style: const TextStyle(color: Colors.white),
               obscureText: true,
               decoration: InputDecoration(
-                labelText: 'Password',
+                labelText: 'Hasło',
                 labelStyle: const TextStyle(color: Colors.white),
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.2),
@@ -108,14 +106,13 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             const SizedBox(height: 20),
-            // Zapomniane hasło
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextButton(
                   onPressed: () {},
                   child: const Text(
-                    'Forgot Password?',
+                    'Zapomniałeś hasła?',
                     style: TextStyle(
                       color: Colors.white,
                     ),
@@ -127,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                     _screenController.navigateToRegister(context);
                   },
                   child: const Text(
-                    'Sign Up',
+                    'Rejestracja',
                     style: TextStyle(
                       color: Colors.white,
                     ),

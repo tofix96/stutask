@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:stutask/screens/chat/chat_screen.dart';
+import 'package:stutask/bloc/task_service.dart';
+import 'package:stutask/bloc/user_service.dart';
+import 'package:stutask/models/user.dart';
+import 'package:stutask/models/review.dart';
+
 import 'package:stutask/main.dart';
 
 class ApplicationsScreen extends StatelessWidget {
@@ -11,8 +16,11 @@ class ApplicationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userService = Provider.of<UserService>(context, listen: false);
+    final taskService = Provider.of<TaskService>(context, listen: false);
+
     return Scaffold(
-      appBar: GradientAppBar(title: 'Lista aplikujacych'),
+      appBar: GradientAppBar(title: 'Lista aplikujących'),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('tasks')
@@ -32,83 +40,58 @@ class ApplicationsScreen extends StatelessWidget {
           return ListView.builder(
             itemCount: applications.length,
             itemBuilder: (context, index) {
-              final application = applications[index];
-              final userId = application['userId'];
+              final userId = applications[index]['userId'];
 
-              return FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance
-                    .collection('D_Users')
-                    .doc(userId)
-                    .get(),
+              return FutureBuilder<UserModel>(
+                future: userService.getUserDetails(userId),
                 builder: (context, userSnapshot) {
-                  if (!userSnapshot.hasData || !userSnapshot.data!.exists) {
+                  if (!userSnapshot.hasData) {
                     return const ListTile(
                       title: Text('Nie znaleziono użytkownika'),
                     );
                   }
 
-                  final userData =
-                      userSnapshot.data!.data() as Map<String, dynamic>;
-                  final String firstName = userData['Imię'] ?? 'Brak imienia';
-                  final String lastName =
-                      userData['Nazwisko'] ?? 'Brak nazwiska';
-                  final String age = userData['Wiek'] ?? 'Nieznany wiek';
+                  final user = userSnapshot.data!;
 
-                  return FutureBuilder<QuerySnapshot>(
-                    future: FirebaseFirestore.instance
-                        .collection('D_Users')
-                        .doc(
-                            userId) // Pobieramy dokument użytkownika o odpowiednim userId
-                        .collection(
-                            'reviews') // Przechodzimy do podkolekcji reviews
-                        .get(),
+                  return FutureBuilder<List<Review>>(
+                    future: userService.getUserReviews(userId),
                     builder: (context, reviewSnapshot) {
-                      if (reviewSnapshot.connectionState ==
-                          ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
                       double averageRating = 0.0;
-                      String opinionText = 'Brak opinii';
-
                       if (reviewSnapshot.hasData &&
-                          reviewSnapshot.data!.docs.isNotEmpty) {
-                        final reviews = reviewSnapshot.data!.docs;
-                        final totalRating = reviews.fold(
-                          0.0,
-                          (sum, review) =>
-                              sum + (review['rating'] as num).toDouble(),
-                        );
-                        averageRating = totalRating / reviews.length;
-                        opinionText =
-                            'Średnia ocena: ${averageRating.toStringAsFixed(1)}';
-                        print('Średnia ocena dla użytkownika: $averageRating');
-                      } else {
-                        print('Brak opinii dla użytkownika o ID: $userId');
+                          reviewSnapshot.data!.isNotEmpty) {
+                        final reviews = reviewSnapshot.data!;
+                        averageRating = reviews
+                                .map((review) => review.rating)
+                                .reduce((a, b) => a + b) /
+                            reviews.length;
                       }
 
                       return ListTile(
-                        title: Text('$firstName $lastName'),
+                        title: Text('${user.firstName} ${user.lastName}'),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Wiek: $age'),
-                            Text('Opinia: $opinionText'),
+                            Text('Wiek: ${user.age}'),
+                            Text(
+                                'Średnia ocena: ${averageRating.toStringAsFixed(1)}'),
                           ],
                         ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ElevatedButton(
-                              onPressed: () =>
-                                  _assignUserToTask(context, taskId, userId),
+                              onPressed: () => taskService
+                                  .assignUserToTask(taskId, userId)
+                                  .then((_) => Navigator.pop(context)),
                               child: const Text('Przypisz'),
                             ),
-                            const SizedBox(
-                                width: 8), // Odstęp między przyciskami
+                            const SizedBox(width: 8),
                             ElevatedButton(
-                              onPressed: () =>
-                                  _startChat(context, taskId, userId),
+                              onPressed: () => taskService.startChat(
+                                taskId,
+                                userId,
+                                FirebaseAuth.instance.currentUser!.uid,
+                              ),
                               child: const Text('Chat'),
                             ),
                           ],
@@ -121,43 +104,6 @@ class ApplicationsScreen extends StatelessWidget {
             },
           );
         },
-      ),
-    );
-  }
-
-  void _assignUserToTask(
-      BuildContext context, String taskId, String userId) async {
-    final taskRef = FirebaseFirestore.instance.collection('tasks').doc(taskId);
-
-    await taskRef.update({
-      'assignedUserId': userId, // Przypisanie użytkownika do zadania
-    });
-
-    Navigator.pop(context); // Cofnięcie do poprzedniego ekranu po przypisaniu
-  }
-
-  Future<void> _startChat(
-      BuildContext context, String taskId, String userId) async {
-    final chatRef =
-        FirebaseFirestore.instance.collection('chats').doc('$taskId-$userId');
-
-    final chatSnapshot = await chatRef.get();
-
-    // Jeśli chat jeszcze nie istnieje, zainicjujemy nowy
-    if (!chatSnapshot.exists) {
-      await chatRef.set({
-        'taskId': taskId,
-        'workerId': userId,
-        'employerId': FirebaseAuth.instance.currentUser!.uid,
-        'createdAt': Timestamp.now(),
-      });
-    }
-
-    // Przejdź do ekranu chatu (trzeba mieć już przygotowany ekran ChatScreen)
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ChatScreen(chatId: chatRef.id),
       ),
     );
   }

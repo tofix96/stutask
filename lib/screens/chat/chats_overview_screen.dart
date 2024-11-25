@@ -16,7 +16,6 @@ class ChatOverviewScreen extends StatelessWidget {
       return const Center(child: Text('Użytkownik niezalogowany.'));
     }
 
-    // Stream to fetch chats where user is either employer or worker
     final chatStream = FirebaseFirestore.instance
         .collection('chats')
         .where('employerId', isEqualTo: user.uid)
@@ -30,7 +29,7 @@ class ChatOverviewScreen extends StatelessWidget {
       final allChats = [
         ...employerSnapshot.docs,
         ...workerChats.docs,
-      ].toSet(); // Merge results and remove duplicates
+      ].toSet();
 
       return allChats.toList();
     });
@@ -53,12 +52,11 @@ class ChatOverviewScreen extends StatelessWidget {
             itemCount: chats.length,
             itemBuilder: (context, index) {
               final chat = chats[index];
-              final chatId = chat.id; // Pobierz ID dokumentu (chatId)
+              final chatId = chat.id;
               final chatData = chat.data() as Map<String, dynamic>;
               final taskId = chatData['taskId'];
               final workerId = chatData['workerId'];
               final employerId = chatData['employerId'];
-
               final isEmployer = user.uid == employerId;
 
               return FutureBuilder<DocumentSnapshot>(

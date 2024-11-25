@@ -2,14 +2,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:stutask/bloc/auth_providers.dart' as custom_auth;
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:stutask/bloc/auth_providers.dart' as custom_auth;
+import 'package:stutask/bloc/screen_controller.dart';
 import 'package:stutask/screens/chat/chats_overview_screen.dart';
 import 'package:stutask/screens/auth/login_screen.dart';
 import 'package:stutask/screens/tasks/create_task_screen.dart'; // Import ekranu tworzenia zadania
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:stutask/screens/profile/seetings_screen.dart';
-import 'package:stutask/bloc/screen_controller.dart';
 
 int selectedIndex = 0;
 
@@ -78,8 +79,8 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Stutask'),
         titleTextStyle: const TextStyle(
-          color: Colors.white, // Zmień kolor na żądany
-          fontSize: 28.0, // Opcjonalnie zmień rozmiar czcionki
+          color: Colors.white,
+          fontSize: 28.0,
           fontWeight: FontWeight.bold,
           shadows: [
             Shadow(
@@ -87,16 +88,13 @@ class _HomePageState extends State<HomePage> {
               color: Colors.black45,
               offset: Offset(2, 2),
             ),
-          ], // Opcjonalnie ustaw styl czcionki
+          ],
         ),
-        backgroundColor: Colors.transparent, // Ustawienie przezroczystości
+        backgroundColor: Colors.transparent,
         flexibleSpace: Container(
           decoration: const BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Color(0xFFEF6C00), // Pomarańczowy
-                Color(0xFFFFC107) // Jaśniejszy pomarańczowy
-              ],
+              colors: [Color(0xFFEF6C00), Color(0xFFFFC107)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -108,20 +106,17 @@ class _HomePageState extends State<HomePage> {
               decoration: const BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black54, // Kolor cienia
-                    blurRadius: 3, // Rozmycie cienia
-                    offset: Offset(1, 1), // Przesunięcie cienia
+                    color: Colors.black54,
+                    blurRadius: 3,
+                    offset: Offset(1, 1),
                   ),
                 ],
               ),
               child: const Icon(Icons.chat, color: Colors.white),
             ),
             onPressed: () {
-              // Akcja po kliknięciu ikony czatu
               Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (_) =>
-                        ChatOverviewScreen()), // Przejście do ekranu czatu
+                MaterialPageRoute(builder: (_) => ChatOverviewScreen()),
               );
             },
           ),
@@ -130,15 +125,15 @@ class _HomePageState extends State<HomePage> {
               decoration: const BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: Color.fromARGB(137, 37, 37, 37), // Kolor cienia
-                    blurRadius: 7, // Rozmycie cienia
-                    offset: Offset(0.5, 1), // Przesunięcie cienia
+                    color: Color.fromARGB(137, 37, 37, 37),
+                    blurRadius: 7,
+                    offset: Offset(0.5, 1),
                     spreadRadius: 0.001,
                   ),
                 ],
               ),
               child: const Icon(Icons.logout, color: Colors.white),
-            ), // Ikona wylogowania
+            ),
             onPressed: () {
               FirebaseAuth.instance.signOut();
               Provider.of<custom_auth.AuthProvider>(context, listen: false)

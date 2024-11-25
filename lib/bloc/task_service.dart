@@ -1,15 +1,18 @@
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:stutask/bloc/screen_controller.dart';
+import 'package:stutask/main.dart';
+import 'package:stutask/models/task.dart';
 
 class TaskService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  final firebase_storage.FirebaseStorage _storage =
+      firebase_storage.FirebaseStorage.instance;
   final ScreenController _screenController =
       ScreenController(); // Dodaj instancję ScreenController
 
@@ -40,6 +43,66 @@ class TaskService {
         _storage.ref().child('task_images/${DateTime.now().toString()}');
     await ref.putFile(imageFile);
     return await ref.getDownloadURL();
+  }
+
+  Future<void> assignUserToTask(String taskId, String userId) async {
+    await _firestore.collection('tasks').doc(taskId).update({
+      'assignedUserId': userId,
+    });
+  }
+
+  //funkcja inicjalizujaca czat
+  Future<void> startChat(
+      String taskId, String userId, String employerId) async {
+    final chatRef =
+        FirebaseFirestore.instance.collection('chats').doc('$taskId-$userId');
+
+    final chatSnapshot = await chatRef.get();
+
+    // Jeśli chat jeszcze nie istnieje, utwórz go
+    if (!chatSnapshot.exists) {
+      await chatRef.set({
+        'taskId': taskId,
+        'workerId': userId,
+        'employerId': employerId,
+        'createdAt': Timestamp.now(),
+      });
+    }
+
+    // Użyj metody ze ScreenController do nawigacji
+    _screenController.navigateToChatScreen(
+      navigatorKey.currentState!.context,
+      chatRef.id,
+    );
+  }
+
+  Future<Task> getTaskDetails(String taskId) async {
+    final taskSnapshot = await _firestore.collection('tasks').doc(taskId).get();
+    if (!taskSnapshot.exists) throw Exception('Task not found');
+    return Task.fromFirestore(taskSnapshot.id, taskSnapshot.data()!);
+  }
+
+  Future<void> submitReview({
+    required String taskId,
+    required String assignedUserId,
+    required String reviewText,
+    required int rating,
+  }) async {
+    final userRef = _firestore.collection('D_Users').doc(assignedUserId);
+
+    // Zapisz opinię
+    await userRef.collection('reviews').add({
+      'taskId': taskId,
+      'review': reviewText,
+      'rating': rating,
+      'timestamp': Timestamp.now(),
+    });
+
+    // Oznacz zadanie jako zakończone
+    await _firestore.collection('tasks').doc(taskId).update({
+      'completed': true,
+      'completionTimestamp': Timestamp.now(),
+    });
   }
 
   // Funkcja do tworzenia zadania, obsługująca walidację i przesyłanie zdjęcia

@@ -13,6 +13,10 @@ import 'screens/profile/user_info_screen.dart';
 import 'package:stutask/screens/tasks/task_detail_screen.dart';
 import 'package:stutask/screens/chat/chat_screen.dart';
 import 'package:stutask/screens/chat/chats_overview_screen.dart';
+import 'package:stutask/bloc/user_service.dart';
+import 'package:stutask/bloc/task_service.dart';
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding
@@ -40,7 +44,15 @@ void main() async {
         : null, // domyślna aktywacja dla Androida i iOS
   );
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider<UserService>(create: (_) => UserService()),
+        Provider<TaskService>(create: (_) => TaskService()),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 // App StuTask
@@ -52,32 +64,28 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => custom_auth.AuthProvider(),
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primaryColor:
-              Color.fromARGB(255, 51, 52, 58), // Główny kolor aplikacji
+          primaryColor: Color.fromARGB(255, 51, 52, 58),
           colorScheme: ColorScheme.fromSwatch(
-            primarySwatch: Colors.deepOrange, // Zmień na żądany kolor
+            primarySwatch: Colors.deepOrange,
           ).copyWith(
-            secondary:
-                Color.fromARGB(255, 51, 52, 58), // Akcenty (np. przyciski)
+            secondary: Color.fromARGB(255, 51, 52, 58),
           ),
           inputDecorationTheme: const InputDecorationTheme(
             focusedBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: Color.fromARGB(
-                      255, 51, 52, 58)), // Kolor linii po kliknięciu
+              borderSide: BorderSide(color: Color.fromARGB(255, 51, 52, 58)),
             ),
             enabledBorder: UnderlineInputBorder(
-              borderSide: BorderSide(
-                  color: Color(0xFFEF6C00)), // Kolor linii bez kliknięcia
+              borderSide: BorderSide(color: Color(0xFFEF6C00)),
             ),
             labelStyle: TextStyle(
-              color: Color.fromARGB(255, 51, 52, 58), // Kolor tekstu etykiety
+              color: Color.fromARGB(255, 51, 52, 58),
             ),
           ),
           appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.transparent, // Przezroczyste tło
+            backgroundColor: Colors.transparent,
             titleTextStyle: TextStyle(
               color: Colors.white,
               fontSize: 20.0,
@@ -123,7 +131,7 @@ class MyApp extends StatelessWidget {
 class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
 
-  const GradientAppBar({Key? key, required this.title}) : super(key: key);
+  const GradientAppBar({super.key, required this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -133,8 +141,8 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              Color(0xFFEF6C00), // Pomarańczowy
-              Color(0xFFFFC107), // Jaśniejszy pomarańczowy
+              Color(0xFFEF6C00),
+              Color(0xFFFFC107),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -148,7 +156,6 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => const Size.fromHeight(kToolbarHeight);
 }
 
-//Kontener gradientowy do aplikacji
 class GradientBody extends StatelessWidget {
   final Widget child;
   final EdgeInsets padding;
@@ -167,9 +174,9 @@ class GradientBody extends StatelessWidget {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFFEF6C00), // Pomarańczowy
-            Color(0xFFFFA726), // Jaśniejszy pomarańczowy
-            Color(0xFFFFC107), // Żółty
+            Color(0xFFEF6C00),
+            Color(0xFFFFA726),
+            Color(0xFFFFC107),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

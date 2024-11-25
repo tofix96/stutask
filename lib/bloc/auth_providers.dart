@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthProvider with ChangeNotifier {
-  final FirebaseAuth _auth = FirebaseAuth.instance; // Instancja FirebaseAuth
+  final FirebaseAuth _auth = FirebaseAuth.instance;
   String? _token;
 
   String? get token => _token;
@@ -17,7 +17,7 @@ class AuthProvider with ChangeNotifier {
       BuildContext context, String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please fill all fields')),
+        const SnackBar(content: Text('Uzupełnij wszystkie pola')),
       );
       return;
     }
@@ -26,14 +26,13 @@ class AuthProvider with ChangeNotifier {
       User? user = await _signUpWithEmailAndPassword(email, password);
       if (user != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registration successful!')),
+          const SnackBar(content: Text('Rejestracja powiodła się')),
         );
-        Navigator.pop(context); // Powrót do ekranu logowania
+        Navigator.pop(context);
       }
     } catch (e) {
-      // Obsłuż błąd Firebase
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Registration failed: ${e.toString()}')),
+        SnackBar(content: Text('Rejestracja nie powiodła się ${e.toString()}')),
       );
     }
   }
@@ -57,7 +56,7 @@ class AuthProvider with ChangeNotifier {
         password: password.trim(),
       );
       String? token = await userCredential.user?.getIdToken();
-      setToken(token); // Ustaw token po zalogowaniu
+      setToken(token);
       return userCredential.user;
     } catch (e) {
       return null;

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:stutask/models/review.dart';
+import 'package:stutask/models/user.dart';
 
 class UserService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -59,5 +61,26 @@ class UserService {
         'Wiek': age,
       });
     }
+  }
+
+  Future<UserModel> getUserDetails(String userId) async {
+    final userSnapshot =
+        await _firestore.collection('D_Users').doc(userId).get();
+    if (!userSnapshot.exists) throw Exception('User not found');
+
+    // Przekazujemy zarówno dane, jak i id do konstruktora
+    return UserModel.fromFirestore(userSnapshot.data()!, userSnapshot.id);
+  }
+
+  Future<List<Review>> getUserReviews(String userId) async {
+    final reviewsSnapshot = await _firestore
+        .collection('D_Users')
+        .doc(userId)
+        .collection('reviews')
+        .get();
+
+    return reviewsSnapshot.docs
+        .map((doc) => Review.fromFirestore(doc.data()))
+        .toList();
   }
 }

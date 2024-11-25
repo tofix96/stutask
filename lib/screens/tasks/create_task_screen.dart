@@ -26,20 +26,6 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
     _loadUserName();
   }
 
-  Future<void> _loadUserName() async {
-    _creatorName = await _taskService.getUserName();
-    setState(() {});
-  }
-
-  Future<void> _pickImage() async {
-    final pickedImage = await _taskService.pickImage();
-    if (pickedImage != null) {
-      setState(() {
-        _imageFile = pickedImage;
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,5 +165,19 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _loadUserName() async {
+    _creatorName = await _taskService.getUserName();
+    setState(() {});
+  }
+
+  Future<void> _pickImage() async {
+    final pickedImage = await _taskService.pickImage();
+    if (pickedImage != null) {
+      setState(() {
+        _imageFile = pickedImage;
+      });
+    }
   }
 }

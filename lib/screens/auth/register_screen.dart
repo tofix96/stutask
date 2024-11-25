@@ -11,33 +11,27 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  // Kontrolery dla pól tekstowych
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   Future<void> _registerUser() async {
-    // Najpierw walidacja formularza
     if (_formKey.currentState!.validate()) {
       final String email = _emailController.text.trim();
       final String password = _passwordController.text.trim();
 
       try {
-        // Próbujemy zarejestrować użytkownika
         await Provider.of<AuthProvider>(context, listen: false)
             .registerUser(context, email, password);
-
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Rejestracja udana!')),
         );
       } catch (e) {
-        // Obsługa błędów podczas rejestracji
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Błąd rejestracji: $e')),
         );
       }
     } else {
-      // Jeśli walidacja się nie powiodła
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Popraw błędy w formularzu.')),
       );
@@ -56,7 +50,7 @@ class _RegisterPageState extends State<RegisterPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
-                'Create Account!',
+                'Zarejestruj się!',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 36,
@@ -73,7 +67,7 @@ class _RegisterPageState extends State<RegisterPage> {
               ),
               const SizedBox(height: 10),
               Text(
-                'Register a new account',
+                'Utwórz nowe konto',
                 style: TextStyle(
                   color: Colors.white.withOpacity(0.9),
                   fontSize: 18,
@@ -139,7 +133,6 @@ class _RegisterPageState extends State<RegisterPage> {
                 },
               ),
               const SizedBox(height: 30),
-              // Przycisk rejestracji
               Center(
                 child: ElevatedButton(
                   onPressed: _registerUser,
@@ -154,7 +147,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     ),
                   ),
                   child: const Text(
-                    'Register',
+                    'Zarejestruj',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.black87,
