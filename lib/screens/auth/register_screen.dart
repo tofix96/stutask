@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:stutask/bloc/auth_providers.dart';
-import 'package:stutask/main.dart';
+import 'package:stutask/widgets/widget_style.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});

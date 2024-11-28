@@ -6,8 +6,7 @@ import 'package:stutask/bloc/task_service.dart';
 import 'package:stutask/bloc/user_service.dart';
 import 'package:stutask/models/user.dart';
 import 'package:stutask/models/review.dart';
-
-import 'package:stutask/main.dart';
+import 'package:stutask/widgets/widget_style.dart';
 
 class ApplicationsScreen extends StatelessWidget {
   final String taskId;

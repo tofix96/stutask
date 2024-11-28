@@ -8,7 +8,6 @@ class UserService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Funkcja pobierająca informacje o użytkowniku z Firestore
   Future<Map<String, dynamic>?> getUserData() async {
     final user = _auth.currentUser;
     if (user != null) {
@@ -52,7 +51,6 @@ class UserService {
     return UserModel.fromFirestore(userSnapshot.data()!, user.uid);
   }
 
-  // Istniejąca funkcja zapisująca informacje o użytkowniku
   Future<void> saveUserInfo({
     required String bio,
     required String firstName,
@@ -78,8 +76,6 @@ class UserService {
     final userSnapshot =
         await _firestore.collection('D_Users').doc(userId).get();
     if (!userSnapshot.exists) throw Exception('User not found');
-
-    // Przekazujemy zarówno dane, jak i id do konstruktora
     return UserModel.fromFirestore(userSnapshot.data()!, userSnapshot.id);
   }
 
