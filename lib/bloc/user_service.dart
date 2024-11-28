@@ -51,6 +51,20 @@ class UserService {
     return UserModel.fromFirestore(userSnapshot.data()!, user.uid);
   }
 
+  Future<String?> getAccountType(String userId) async {
+    try {
+      final userSnapshot = await FirebaseFirestore.instance
+          .collection('D_Users')
+          .doc(userId)
+          .get();
+
+      return userSnapshot.data()?['Typ_konta'] as String?;
+    } catch (e) {
+      print('Błąd podczas pobierania typu konta: $e');
+      return null;
+    }
+  }
+
   Future<void> saveUserInfo({
     required String bio,
     required String firstName,

@@ -11,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'screens/profile/seetings_screen.dart';
 import 'screens/profile/user_info_screen.dart';
 import 'package:stutask/screens/tasks/task_detail_screen.dart';
+import 'package:stutask/screens/tasks/assigned_tasks_screen.dart';
 import 'package:stutask/screens/chat/chat_screen.dart';
 import 'package:stutask/screens/chat/chats_overview_screen.dart';
 import 'package:stutask/bloc/user_service.dart';
@@ -107,8 +108,9 @@ class MyApp extends StatelessWidget {
                 user: FirebaseAuth.instance.currentUser,
                 showEmployerTasks: false,
               ),
-          '/home-employer-tasks': (context) => HomePage(
-                user: FirebaseAuth.instance.currentUser,
+          '/assigned-tasks': (context) => AssignedTasksScreen(
+                user: FirebaseAuth.instance.currentUser!,
+                accountType: 'Pracownik',
               ),
           '/user-info': (context) => UserInfoScreen(),
           '/settings': (context) => SettingsScreen(),
@@ -123,70 +125,6 @@ class MyApp extends StatelessWidget {
             return ChatScreen(chatId: args['chatId']);
           },
         },
-      ),
-    );
-  }
-}
-
-class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
-  final String title;
-
-  const GradientAppBar({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return AppBar(
-      title: Text(title),
-      flexibleSpace: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFEF6C00),
-              Color(0xFFFFC107),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-      ),
-    );
-  }
-
-  @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight);
-}
-
-class GradientBody extends StatelessWidget {
-  final Widget child;
-  final EdgeInsets padding;
-
-  const GradientBody({
-    super.key,
-    required this.child,
-    this.padding = const EdgeInsets.all(16.0),
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: double.infinity,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Color(0xFFEF6C00),
-            Color(0xFFFFA726),
-            Color(0xFFFFC107),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-      ),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: padding,
-          child: child,
-        ),
       ),
     );
   }

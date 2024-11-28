@@ -9,6 +9,7 @@ import 'package:stutask/screens/home.dart';
 import 'package:stutask/screens/auth/register_screen.dart';
 import 'package:stutask/screens/profile/user_info_screen.dart';
 import 'package:stutask/screens/tasks/application_screen.dart';
+import 'package:stutask/screens/tasks/assigned_tasks_screen.dart';
 
 class ScreenController {
   Future<void> loginUser(
@@ -47,6 +48,36 @@ class ScreenController {
     }
   }
 
+  void navigateToAssignedTasks(
+    BuildContext context,
+    User user,
+    String accountType,
+  ) {
+    if (accountType == 'Pracownik') {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => AssignedTasksScreen(
+            user: user,
+            accountType: 'Pracownik',
+          ),
+        ),
+      );
+    } else if (accountType == 'Pracodawca') {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => AssignedTasksScreen(
+            user: user,
+            accountType: 'Pracodawca',
+          ),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nieznany typ konta')),
+      );
+    }
+  }
+
   void navigateToRegister(BuildContext context) {
     Navigator.push(
       context,
@@ -54,13 +85,37 @@ class ScreenController {
     );
   }
 
-  void navigateToHome(BuildContext context, User? user,
-      {bool showEmployerTasks = false}) {
+  void navigateToHome(
+    BuildContext context,
+    User? user, {
+    bool showEmployerTasks = false,
+  }) {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            HomePage(user: user, showEmployerTasks: showEmployerTasks),
+        builder: (context) => HomePage(
+          user: user,
+          showEmployerTasks: showEmployerTasks,
+          // Przekazanie accountType
+        ),
+      ),
+    );
+  }
+
+  void navigatesToHome(BuildContext context, User? user,
+      {bool showEmployerTasks = false, String? accountType}) {
+    if (user == null) {
+      print('Cannot navigate. User is null.');
+      return;
+    }
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => HomePage(
+          user: user,
+          showEmployerTasks: showEmployerTasks,
+        ),
       ),
     );
   }
