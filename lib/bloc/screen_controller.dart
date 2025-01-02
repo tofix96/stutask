@@ -26,11 +26,22 @@ class ScreenController {
             .get();
 
         if (userData.exists) {
-          Navigator.pushReplacementNamed(
-            context,
-            '/home',
-            arguments: user,
-          );
+          final userType =
+              userData.data()?['Typ_konta']; // Pobranie wartości Typ_konta
+
+          if (userType == 'Administrator') {
+            Navigator.pushReplacementNamed(
+              context,
+              '/admin',
+              arguments: user,
+            );
+          } else {
+            Navigator.pushReplacementNamed(
+              context,
+              '/home',
+              arguments: user,
+            );
+          }
         } else {
           Navigator.pushReplacement(
             context,

@@ -146,6 +146,8 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                         value: 'Pracownik', child: Text('Pracownik')),
                     DropdownMenuItem(
                         value: 'Pracodawca', child: Text('Pracodawca')),
+                    DropdownMenuItem(
+                        value: 'Administrator', child: Text('Administrator')),
                   ],
                   onChanged: (value) {
                     setState(() {

@@ -16,6 +16,7 @@ import 'package:stutask/screens/chat/chat_screen.dart';
 import 'package:stutask/screens/chat/chats_overview_screen.dart';
 import 'package:stutask/bloc/user_service.dart';
 import 'package:stutask/bloc/task_service.dart';
+import 'package:stutask/screens/admin_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -117,6 +118,8 @@ class MyApp extends StatelessWidget {
             final args = ModalRoute.of(context)!.settings.arguments as Map;
             return ApplicationsScreen(taskId: args['taskId']);
           },
+          '/admin': (context) =>
+              AdminPage(user: FirebaseAuth.instance.currentUser),
           '/chat-overview': (context) => ChatOverviewScreen(),
           '/chat': (context) {
             final args = ModalRoute.of(context)!.settings.arguments as Map;

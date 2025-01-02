@@ -25,6 +25,7 @@ class _TaskListViewState extends State<TaskListView> {
   String _sortField = 'Nazwa';
   bool _isAscending = true;
   String _category = 'Wszystkie';
+  String _searchQuery = '';
   List<Map<String, dynamic>> localData = [];
   bool isLoading = true;
 
@@ -76,8 +77,15 @@ class _TaskListViewState extends State<TaskListView> {
 
   List<Map<String, dynamic>> _applyFiltersAndSorting() {
     List<Map<String, dynamic>> filteredData = localData.where((task) {
-      if (_category == 'Wszystkie') return true;
-      return task['Kategoria'] == _category;
+      if (_category != 'Wszystkie' && task['Kategoria'] != _category) {
+        return false;
+      }
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        return (task['Nazwa'] ?? '').toLowerCase().contains(query) ||
+            (task['Opis'] ?? '').toLowerCase().contains(query);
+      }
+      return true;
     }).toList();
 
     // Sortowanie danych
@@ -101,6 +109,21 @@ class _TaskListViewState extends State<TaskListView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            decoration: const InputDecoration(
+              labelText: 'Wyszukaj zadania',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.search),
+            ),
+            onChanged: (query) {
+              setState(() {
+                _searchQuery = query;
+              });
+            },
+          ),
+        ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
