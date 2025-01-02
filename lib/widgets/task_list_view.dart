@@ -22,10 +22,10 @@ class TaskListView extends StatefulWidget {
 }
 
 class _TaskListViewState extends State<TaskListView> {
-  String _sortField = 'Nazwa'; // Domyślne pole sortowania
-  bool _isAscending = true; // Domyślne sortowanie rosnące
-  String _category = 'Wszystkie'; // Domyślna kategoria
-  List<Map<String, dynamic>> localData = []; // Dane lokalne
+  String _sortField = 'Nazwa';
+  bool _isAscending = true;
+  String _category = 'Wszystkie';
+  List<Map<String, dynamic>> localData = [];
   bool isLoading = true;
 
   @override
@@ -39,21 +39,18 @@ class _TaskListViewState extends State<TaskListView> {
       QuerySnapshot snapshot;
 
       if (widget.filterByAssignedTasks) {
-        // Filtruj zadania przypisane do pracownika
         snapshot = await FirebaseFirestore.instance
             .collection('tasks')
             .where('assignedUserId', isEqualTo: widget.user.uid)
             .where('completed', isEqualTo: false)
             .get();
       } else if (widget.filterByCreatedTasks) {
-        // Filtruj zadania utworzone przez pracodawcę
         snapshot = await FirebaseFirestore.instance
             .collection('tasks')
             .where('userId', isEqualTo: widget.user.uid)
             .where('completed', isEqualTo: false)
             .get();
       } else {
-        // Standardowe pobieranie zadań
         snapshot = await FirebaseFirestore.instance
             .collection('tasks')
             .where('completed', isEqualTo: false)
@@ -61,11 +58,10 @@ class _TaskListViewState extends State<TaskListView> {
             .get();
       }
 
-      // Przetwarzanie wyników
       setState(() {
         localData = snapshot.docs.map((doc) {
           final data = doc.data() as Map<String, dynamic>;
-          data['id'] = doc.id; // Dodanie identyfikatora dokumentu
+          data['id'] = doc.id;
           return data;
         }).toList();
         isLoading = false;
@@ -79,7 +75,6 @@ class _TaskListViewState extends State<TaskListView> {
   }
 
   List<Map<String, dynamic>> _applyFiltersAndSorting() {
-    // Filtrowanie danych
     List<Map<String, dynamic>> filteredData = localData.where((task) {
       if (_category == 'Wszystkie') return true;
       return task['Kategoria'] == _category;
@@ -106,7 +101,6 @@ class _TaskListViewState extends State<TaskListView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Sortowanie i filtrowanie
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

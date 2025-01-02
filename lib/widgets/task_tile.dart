@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:stutask/bloc/screen_controller.dart';
 
 class TaskTile extends StatelessWidget {
-  final String taskId; // Dodanie taskId
+  final String taskId;
   final String taskTitle;
   final String taskDescription;
   final String price;

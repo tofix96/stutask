@@ -15,6 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   final ScreenController _screenController = ScreenController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String? _errorMessage; // Pole na komunikat o błędzie
+  final ScreenController screenController = ScreenController();
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +54,7 @@ class _LoginPageState extends State<LoginPage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
-              // Wyświetlanie komunikatu o błędzie
-              if (_errorMessage != null) // Jeśli istnieje komunikat o błędzie
+              if (_errorMessage != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 10),
                   child: Text(
@@ -128,7 +128,8 @@ class _LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () =>
+                        screenController.goToForgotPasswordScreen(context),
                     child: const Text(
                       'Zapomniałeś hasła?',
                       style: TextStyle(
@@ -160,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
   // Funkcja logowania
   void _loginUser() async {
     setState(() {
-      _errorMessage = null; // Reset błędu przed logowaniem
+      _errorMessage = null;
     });
 
     final email = _emailController.text.trim();

@@ -7,7 +7,7 @@ import 'package:stutask/widgets/task_list_view.dart';
 import 'package:stutask/bloc/auth_providers.dart' as custom_auth;
 import 'package:stutask/screens/chat/chats_overview_screen.dart';
 import 'package:stutask/screens/auth/login_screen.dart';
-import 'package:stutask/screens/tasks/create_task_screen.dart'; // Import ekranu tworzenia zadania
+import 'package:stutask/screens/tasks/create_task_screen.dart';
 import 'package:stutask/screens/profile/seetings_screen.dart';
 import 'package:stutask/bloc/user_service.dart';
 import 'package:stutask/screens/tasks/assigned_tasks_screen.dart';
@@ -26,12 +26,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final UserService _userService = UserService(); // Instancja serwisu
+  final UserService _userService = UserService();
   String? accountType = 'Pracownik';
   @override
   void initState() {
     super.initState();
-    _fetchAccountType(); // Pobierz typ konta przy inicjalizacji
+    _fetchAccountType();
   }
 
   Future<void> _fetchAccountType() async {
@@ -39,7 +39,7 @@ class _HomePageState extends State<HomePage> {
     if (userId != null) {
       final type = await _userService.getAccountType(userId);
       setState(() {
-        accountType = type ?? 'Nieznany'; // Domyślna wartość, jeśli brak danych
+        accountType = type ?? 'Nieznany';
       });
     } else {
       print('User ID jest null');
@@ -61,7 +61,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       selectedIndex = index;
     });
-    // Przejdź do `HomePage` z filtrowaniem `false`, gdy wybrano zakładkę z listą zadań
   }
 
   @override
@@ -155,8 +154,7 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.face),
             label: 'Profil',
           ),
-          if (accountType ==
-              'Pracodawca') // Wyświetl "Dodaj zadanie" tylko dla pracodawców
+          if (accountType == 'Pracodawca')
             const BottomNavigationBarItem(
               icon: Icon(Icons.add),
               label: 'Dodaj Zadanie',

@@ -8,7 +8,7 @@ class Task {
   final String? imageUrl;
   final String creatorId;
   final bool completed;
-  final String? assignedUserId; // Opcjonalne pole
+  final String? assignedUserId;
 
   Task({
     required this.id,
@@ -23,7 +23,6 @@ class Task {
     this.assignedUserId,
   });
 
-  // Fabryczna metoda do tworzenia obiektów z Firestore
   factory Task.fromFirestore(String id, Map<String, dynamic> data) {
     return Task(
       id: id,
@@ -35,8 +34,7 @@ class Task {
       imageUrl: data['zdjecie'],
       creatorId: data['userId'] ?? '',
       completed: data['completed'] ?? false,
-      assignedUserId:
-          data['assignedUserId'], // Obsługa przypisanego użytkownika
+      assignedUserId: data['assignedUserId'],
     );
   }
 }

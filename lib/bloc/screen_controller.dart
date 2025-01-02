@@ -2,14 +2,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:stutask/bloc/auth_providers.dart'
-    as custom_auth; // Alias dla AuthProvider
+import 'package:stutask/bloc/auth_providers.dart' as custom_auth;
 import 'package:provider/provider.dart';
 import 'package:stutask/screens/home.dart';
 import 'package:stutask/screens/auth/register_screen.dart';
 import 'package:stutask/screens/profile/user_info_screen.dart';
 import 'package:stutask/screens/tasks/application_screen.dart';
 import 'package:stutask/screens/tasks/assigned_tasks_screen.dart';
+import 'package:stutask/screens/auth/forgot_password.dart';
 
 class ScreenController {
   Future<void> loginUser(
@@ -26,7 +26,6 @@ class ScreenController {
             .get();
 
         if (userData.exists) {
-          // Użytkownik ma już dane, przejdź do ekranu głównego
           Navigator.pushReplacementNamed(
             context,
             '/home',
@@ -120,6 +119,14 @@ class ScreenController {
     );
   }
 
+  // Metoda do przejścia na ekran Przypomnienia hasła
+  void goToForgotPasswordScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),
+    );
+  }
+
   void navigateToTaskDetail(BuildContext context, String taskId) {
     Navigator.pushNamed(
       context,
@@ -141,12 +148,14 @@ class ScreenController {
     Navigator.pushNamed(context, '/chat-overview');
   }
 
-  void navigateToChatScreen(BuildContext context, String chatId) {
+  void navigateToChatScreen(
+      BuildContext context, String chatId, String taskId) {
     Navigator.pushNamed(
       context,
       '/chat',
       arguments: {
         'chatId': chatId,
+        'taskId': taskId,
       },
     );
   }

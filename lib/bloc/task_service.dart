@@ -82,9 +82,7 @@ class TaskService {
 
     // Użyj metody ze ScreenController do nawigacji
     _screenController.navigateToChatScreen(
-      navigatorKey.currentState!.context,
-      chatRef.id,
-    );
+        navigatorKey.currentState!.context, chatRef.id, taskId);
   }
 
   Future<Task> getTaskDetails(String taskId) async {

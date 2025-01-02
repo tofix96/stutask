@@ -6,6 +6,7 @@ import 'package:stutask/models/task.dart';
 import 'package:stutask/models/user.dart';
 import 'package:stutask/widgets/detail_row.dart';
 import 'package:stutask/widgets/assigned_user_widget.dart';
+import 'package:stutask/widgets/widget_style.dart';
 
 class TaskDetailScreen extends StatelessWidget {
   const TaskDetailScreen({super.key});
@@ -41,7 +42,7 @@ class TaskDetailScreen extends StatelessWidget {
             }
             final currentUser = userSnapshot.data!;
             return Scaffold(
-              appBar: AppBar(title: const Text('Szczegóły zadania')),
+              appBar: GradientAppBar(title: ('Szczegóły zadania')),
               body: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),

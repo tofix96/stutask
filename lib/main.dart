@@ -20,8 +20,7 @@ import 'package:stutask/bloc/task_service.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
-  WidgetsFlutterBinding
-      .ensureInitialized(); // Upewnij się, że Flutter jest zainicjowany
+  WidgetsFlutterBinding.ensureInitialized();
 
   // Inicjalizacja Firebase
   await Firebase.initializeApp(
@@ -35,14 +34,11 @@ void main() async {
             appId: "1:618977047861:web:b71a855270d76ae062887c",
             measurementId: "G-DPVVFX7WYV",
           )
-        : null, // Dla aplikacji mobilnych Firebase sam pobierze konfigurację
+        : null,
   );
 
-  // Aktywacja Firebase App Check
   await FirebaseAppCheck.instance.activate(
-    webProvider: kIsWeb
-        ? null // ReCaptcha dla Web
-        : null, // domyślna aktywacja dla Androida i iOS
+    webProvider: kIsWeb ? null : null,
   );
 
   runApp(
@@ -56,7 +52,6 @@ void main() async {
   );
 }
 
-// App StuTask
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -122,7 +117,7 @@ class MyApp extends StatelessWidget {
           '/chat-overview': (context) => ChatOverviewScreen(),
           '/chat': (context) {
             final args = ModalRoute.of(context)!.settings.arguments as Map;
-            return ChatScreen(chatId: args['chatId']);
+            return ChatScreen(chatId: args['chatId'], taskId: args['taskId']);
           },
         },
       ),

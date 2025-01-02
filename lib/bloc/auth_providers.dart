@@ -26,7 +26,9 @@ class AuthProvider with ChangeNotifier {
       User? user = await _signUpWithEmailAndPassword(email, password);
       if (user != null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Rejestracja powiodła się')),
+          const SnackBar(
+              content:
+                  Text('Rejestracja powiodła się! Zweryfikuj adres email')),
         );
         Navigator.pop(context);
       }
@@ -37,28 +39,60 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Rejestracja z email i hasłem
+  // Rejestracja z email i hasłem oraz wysyłanie maila weryfikacyjnego
   Future<User?> _signUpWithEmailAndPassword(
       String email, String password) async {
     try {
+      // Tworzenie konta
       UserCredential credential = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
-      return credential.user;
+        email: email,
+        password: password,
+      );
+
+      // Pobranie użytkownika
+      User? user = credential.user;
+
+      if (user != null) {
+        // Wysłanie e-maila weryfikacyjnego
+        await user.sendEmailVerification();
+        print("Wysłano e-mail weryfikacyjny.");
+      }
+
+      return user;
     } catch (e) {
+      print("Błąd podczas rejestracji: $e");
       return null;
     }
   }
 
   Future<User?> loginUser(String email, String password) async {
     try {
+      // Logowanie użytkownika
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),
       );
-      String? token = await userCredential.user?.getIdToken();
-      setToken(token);
-      return userCredential.user;
+
+      User? user = userCredential.user;
+
+      if (user != null) {
+        // Sprawdzenie, czy e-mail został zweryfikowany
+        if (user.emailVerified) {
+          // Pobranie tokena i zapisanie go
+          String? token = await user.getIdToken();
+          setToken(token);
+          return user;
+        } else {
+          print(
+              "E-mail nie został zweryfikowany. Poproś użytkownika o weryfikację.");
+          // Opcjonalnie: Wylogowanie użytkownika, jeśli e-mail nie jest zweryfikowany
+          await _auth.signOut();
+        }
+      }
+
+      return null;
     } catch (e) {
+      print("Błąd logowania: $e");
       return null;
     }
   }

@@ -2,7 +2,7 @@ class UserModel {
   final String id;
   final String firstName;
   final String lastName;
-  final String accountType; // Dodane pole
+  final String accountType;
   final String bio;
   final String age;
 
@@ -10,7 +10,7 @@ class UserModel {
     required this.id,
     required this.firstName,
     required this.lastName,
-    required this.accountType, // Inicjalizacja
+    required this.accountType,
     required this.bio,
     required this.age,
   });
@@ -20,7 +20,7 @@ class UserModel {
       id: id,
       firstName: data['Imię'] ?? '',
       lastName: data['Nazwisko'] ?? '',
-      accountType: data['Typ_konta'] ?? '', // Mapowanie pola
+      accountType: data['Typ_konta'] ?? '',
       bio: data['Bio'] ?? '',
       age: data['Wiek'] ?? '',
     );

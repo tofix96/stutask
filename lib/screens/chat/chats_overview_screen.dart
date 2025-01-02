@@ -111,7 +111,7 @@ class ChatOverviewScreen extends StatelessWidget {
                         trailing: const Icon(Icons.chat),
                         onTap: () {
                           screenController.navigateToChatScreen(
-                              context, chatId);
+                              context, chatId, taskId);
                         },
                       );
                     },

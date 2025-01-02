@@ -24,7 +24,8 @@ class _RegisterPageState extends State<RegisterPage> {
         await Provider.of<AuthProvider>(context, listen: false)
             .registerUser(context, email, password);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Rejestracja udana!')),
+          const SnackBar(
+              content: Text('Rejestracja udana! Wysłano Email weryfikacyjny')),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(

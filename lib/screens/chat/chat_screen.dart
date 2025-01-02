@@ -3,12 +3,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stutask/bloc/screen_controller.dart';
 import 'package:stutask/widgets/widget_style.dart';
+import 'package:stutask/models/task.dart'; // Upewnij się, że model `Task` jest zaimportowany
+import 'package:stutask/bloc/task_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final String chatId;
+  final String taskId;
   final ScreenController screenController = ScreenController();
 
-  ChatScreen({required this.chatId, super.key});
+  ChatScreen({required this.chatId, required this.taskId, super.key});
 
   @override
   _ChatScreenState createState() => _ChatScreenState();
@@ -18,7 +21,25 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final User? _currentUser = FirebaseAuth.instance.currentUser;
 
-  // Funkcja do wysyłania wiadomości
+  Task? _taskDetails;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTaskDetails();
+  }
+
+  Future<void> _loadTaskDetails() async {
+    try {
+      final task = await TaskService().getTaskDetails(widget.taskId);
+      setState(() {
+        _taskDetails = task;
+      });
+    } catch (e) {
+      print('Błąd podczas ładowania szczegółów zadania: $e');
+    }
+  }
+
   void _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
 
@@ -42,6 +63,74 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: GradientAppBar(title: 'Chat'),
       body: Column(
         children: [
+          // Sekcja szczegółów zadania
+          if (_taskDetails != null)
+            Container(
+              margin: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(12.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.shade300,
+                    blurRadius: 5,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  // Zdjęcie zadania
+                  if (_taskDetails!.imageUrl != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.network(
+                        _taskDetails!.imageUrl!,
+                        width: 50,
+                        height: 50,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  else
+                    Container(
+                      width: 50,
+                      height: 50,
+                      color: Colors.grey.shade300,
+                      child: const Icon(Icons.image_not_supported),
+                    ),
+                  const SizedBox(width: 12.0),
+                  // Nazwa i kwota zadania
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          _taskDetails!.name,
+                          style: const TextStyle(
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4.0),
+                        Text(
+                          '\$${_taskDetails!.price.toStringAsFixed(2)}',
+                          style: TextStyle(
+                            fontSize: 14.0,
+                            color: Colors.green.shade700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Center(child: CircularProgressIndicator()),
+            ),
           // Wyświetlanie wiadomości
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
