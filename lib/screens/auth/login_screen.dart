@@ -168,18 +168,42 @@ class _LoginPageState extends State<LoginPage> {
     final password = _passwordController.text.trim();
 
     if (email.isEmpty || password.isEmpty) {
-      setState(() {
-        _errorMessage = 'Wprowadź dane logowania.';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Wprowadź dane logowania.'),
+          backgroundColor: Colors.red,
+        ),
+      );
       return;
     }
 
     try {
-      await _screenController.loginUser(context, email, password);
+      final user = await screenController.loginUser(context, email, password);
+
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                'Nieprawidłowy email, hasło lub brak weryfikacji e-maila.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Logowanie zakończone sukcesem!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        // Przejdź do następnego ekranu
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = 'Nieprawidłowy email lub hasło.';
-      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Wystąpił błąd podczas logowania.'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 }

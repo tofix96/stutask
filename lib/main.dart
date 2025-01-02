@@ -46,6 +46,9 @@ void main() async {
       providers: [
         Provider<UserService>(create: (_) => UserService()),
         Provider<TaskService>(create: (_) => TaskService()),
+        Provider<custom_auth.AuthProvider>(
+          create: (_) => custom_auth.AuthProvider(),
+        ),
       ],
       child: const MyApp(),
     ),

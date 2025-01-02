@@ -12,7 +12,7 @@ import 'package:stutask/screens/tasks/assigned_tasks_screen.dart';
 import 'package:stutask/screens/auth/forgot_password.dart';
 
 class ScreenController {
-  Future<void> loginUser(
+  Future<User?> loginUser(
       BuildContext context, String email, String password) async {
     try {
       final authProvider =
@@ -40,10 +40,10 @@ class ScreenController {
           );
         }
       }
+
+      return user; // Zwraca obiekt User? do miejsca wywołania
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed: ${e.toString()}')),
-      );
+      return null; // Zwraca null w przypadku błędu
     }
   }
 
@@ -104,7 +104,7 @@ class ScreenController {
   void navigatesToHome(BuildContext context, User? user,
       {bool showEmployerTasks = false, String? accountType}) {
     if (user == null) {
-      print('Cannot navigate. User is null.');
+      print('Brak użytkownika');
       return;
     }
 

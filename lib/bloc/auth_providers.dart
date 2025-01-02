@@ -77,23 +77,38 @@ class AuthProvider with ChangeNotifier {
 
       if (user != null) {
         // Sprawdzenie, czy e-mail został zweryfikowany
-        if (user.emailVerified) {
-          // Pobranie tokena i zapisanie go
-          String? token = await user.getIdToken();
-          setToken(token);
-          return user;
-        } else {
-          print(
-              "E-mail nie został zweryfikowany. Poproś użytkownika o weryfikację.");
-          // Opcjonalnie: Wylogowanie użytkownika, jeśli e-mail nie jest zweryfikowany
+        if (!user.emailVerified) {
+          // Wylogowanie i rzucenie wyjątku dla niezweryfikowanego e-maila
           await _auth.signOut();
+          throw FirebaseAuthException(
+            code: 'email-not-verified',
+            message: 'E-mail nie został zweryfikowany.',
+          );
         }
-      }
 
-      return null;
+        // Pobranie tokena i zapisanie go
+        String? token = await user.getIdToken();
+        setToken(token);
+        return user;
+      } else {
+        throw FirebaseAuthException(
+          code: 'invalid-credentials',
+          message: 'Nieprawidłowy email lub hasło.',
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      // Obsługa błędów Firebase
+      if (e.code == 'user-not-found' || e.code == 'wrong-password') {
+        throw FirebaseAuthException(
+          code: 'invalid-credentials',
+          message: 'Nieprawidłowy email lub hasło.',
+        );
+      } else {
+        rethrow; // Rzucenie innych błędów
+      }
     } catch (e) {
-      print("Błąd logowania: $e");
-      return null;
+      // Rzucenie innych wyjątków
+      throw Exception('Unexpected error: $e');
     }
   }
 }
