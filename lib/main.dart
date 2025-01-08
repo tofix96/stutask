@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Import dla kIsWeb
 import 'package:provider/provider.dart'; // Import dla Provider
 import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:stutask/admin_review_screen.dart';
 import 'package:stutask/screens/tasks/application_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home.dart';
@@ -119,12 +120,13 @@ class MyApp extends StatelessWidget {
             return ApplicationsScreen(taskId: args['taskId']);
           },
           '/admin': (context) =>
-              AdminPage(user: FirebaseAuth.instance.currentUser),
+              AdminPage(user: FirebaseAuth.instance.currentUser!),
           '/chat-overview': (context) => ChatOverviewScreen(),
           '/chat': (context) {
             final args = ModalRoute.of(context)!.settings.arguments as Map;
             return ChatScreen(chatId: args['chatId'], taskId: args['taskId']);
           },
+          '/admin-review-screen': (context) => AdminReviewsScreen(),
         },
       ),
     );

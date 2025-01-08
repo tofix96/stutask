@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stutask/widgets/task_tile.dart';
+import 'package:stutask/bloc/user_service.dart';
 
 class TaskListView extends StatefulWidget {
   final User user;
@@ -28,11 +29,43 @@ class _TaskListViewState extends State<TaskListView> {
   String _searchQuery = '';
   List<Map<String, dynamic>> localData = [];
   bool isLoading = true;
+  final UserService _userService = UserService();
+  String? accountType = 'NULL';
 
   @override
   void initState() {
     super.initState();
     _fetchData();
+    _fetchAccountType();
+  }
+
+  Future<void> _deleteTask(String taskId) async {
+    try {
+      await FirebaseFirestore.instance.collection('tasks').doc(taskId).delete();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Zadanie zostało usunięte.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      _fetchData();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Błąd podczas usuwania zadania: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
+  Future<void> _fetchAccountType() async {
+    final userId = widget.user.uid;
+    final type = await _userService.getAccountType(userId);
+    setState(() {
+      accountType = type ?? 'Nieznany';
+    });
+    print(accountType);
   }
 
   Future<void> _fetchData() async {
@@ -193,6 +226,8 @@ class _TaskListViewState extends State<TaskListView> {
                           taskDescription: task['Opis'] ?? 'Brak opisu',
                           price: (task['Cena'] ?? 0).toString(),
                           imageUrl: task['zdjecie'] ?? '',
+                          isAdmin: accountType == 'Administrator',
+                          onDelete: () => _deleteTask(task['id']),
                         );
                       },
                     ),

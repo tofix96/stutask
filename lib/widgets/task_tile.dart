@@ -7,6 +7,8 @@ class TaskTile extends StatelessWidget {
   final String taskDescription;
   final String price;
   final String? imageUrl;
+  final bool isAdmin; // Czy użytkownik to administrator
+  final VoidCallback onDelete; // Funkcja do usuwania zadania
 
   const TaskTile({
     required this.taskId,
@@ -14,6 +16,8 @@ class TaskTile extends StatelessWidget {
     required this.taskDescription,
     required this.price,
     this.imageUrl,
+    required this.isAdmin,
+    required this.onDelete,
     super.key,
   });
 
@@ -80,6 +84,11 @@ class TaskTile extends StatelessWidget {
                   ],
                 ),
               ),
+              if (isAdmin) // Wyświetl przycisk usuwania tylko dla administratorów
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: onDelete, // Wywołaj funkcję usuwania
+                ),
             ],
           ),
         ),

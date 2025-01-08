@@ -1,105 +1,103 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:stutask/admin_review_screen.dart';
+import 'package:stutask/widgets/task_list_view.dart';
+import 'package:stutask/screens/auth/login_screen.dart';
+import 'package:stutask/bloc/auth_providers.dart' as custom_auth;
+import 'package:provider/provider.dart';
 
 class AdminPage extends StatefulWidget {
-  final User? user;
+  final User user;
 
-  const AdminPage({required this.user, super.key});
+  const AdminPage({super.key, required this.user});
 
   @override
   _AdminPageState createState() => _AdminPageState();
 }
 
 class _AdminPageState extends State<AdminPage> {
-  late Future<List<Map<String, dynamic>>> _tasks;
+  int selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchTasks();
-  }
+  List<Widget> _widgetOptions(User user) => <Widget>[
+        TaskListView(user: user),
+        AdminReviewsScreen(),
+      ];
 
-  Future<void> _fetchTasks() async {
+  void _onItemTapped(int index) {
     setState(() {
-      _tasks = FirebaseFirestore.instance.collection('tasks').get().then(
-        (snapshot) {
-          return snapshot.docs
-              .map((doc) =>
-                  {'id': doc.id, ...doc.data() as Map<String, dynamic>})
-              .toList();
-        },
-      );
+      selectedIndex = index;
     });
-  }
-
-  Future<void> _deleteTask(String taskId) async {
-    try {
-      await FirebaseFirestore.instance.collection('tasks').doc(taskId).delete();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Zadanie zostało usunięte.'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      _fetchTasks(); // Odświeżanie danych
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Błąd podczas usuwania zadania: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Panel Administratora'),
-        backgroundColor: Colors.orange,
+        title: const Text('Stutask'),
+        titleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontSize: 28.0,
+          fontWeight: FontWeight.bold,
+          shadows: [
+            Shadow(
+              blurRadius: 10.0,
+              color: Colors.black45,
+              offset: Offset(2, 2),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.transparent,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFEF6C00), Color(0xFFFFC107)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _fetchTasks,
+            icon: Container(
+              decoration: const BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    color: Color.fromARGB(137, 37, 37, 37),
+                    blurRadius: 7,
+                    offset: Offset(0.5, 1),
+                    spreadRadius: 0.001,
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.logout, color: Colors.white),
+            ),
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+              Provider.of<custom_auth.AuthProvider>(context, listen: false)
+                  .setToken(null);
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+              );
+            },
           ),
         ],
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _tasks,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.hasError) {
-            return Center(child: Text('Wystąpił błąd: ${snapshot.error}'));
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Brak zadań do wyświetlenia.'));
-          }
-
-          final tasks = snapshot.data!;
-
-          return ListView.builder(
-            itemCount: tasks.length,
-            itemBuilder: (context, index) {
-              final task = tasks[index];
-              return Card(
-                elevation: 4,
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: ListTile(
-                  title: Text(task['Nazwa'] ?? 'Brak tytułu'),
-                  subtitle: Text(task['Opis'] ?? 'Brak opisu'),
-                  trailing: IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _deleteTask(task['id']),
-                  ),
-                ),
-              );
-            },
-          );
-        },
+      body: _widgetOptions(widget.user)[selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.list),
+            label: 'Zadania',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.star),
+            label: 'Moje zadania',
+          ),
+        ],
+        currentIndex: selectedIndex,
+        selectedItemColor: const Color.fromARGB(255, 255, 153, 0),
+        onTap: _onItemTapped,
       ),
     );
   }
