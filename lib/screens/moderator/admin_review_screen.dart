@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AdminReviewsScreen extends StatefulWidget {
-  const AdminReviewsScreen({Key? key}) : super(key: key);
+  const AdminReviewsScreen({super.key});
 
   @override
-  _AdminReviewsScreenState createState() => _AdminReviewsScreenState();
+  AdminReviewsScreenState createState() => AdminReviewsScreenState();
 }
 
-class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
+class AdminReviewsScreenState extends State<AdminReviewsScreen> {
   Future<List<Map<String, dynamic>>>? _reviews;
 
   @override
@@ -28,6 +28,7 @@ class _AdminReviewsScreenState extends State<AdminReviewsScreen> {
             .collection('D_Users')
             .doc(userDoc.id)
             .collection('reviews')
+            .orderBy('timestamp')
             .get();
 
         for (var reviewDoc in reviewsSnapshot.docs) {

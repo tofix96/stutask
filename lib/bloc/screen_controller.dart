@@ -52,9 +52,9 @@ class ScreenController {
         }
       }
 
-      return user; // Zwraca obiekt User? do miejsca wywołania
+      return user;
     } catch (e) {
-      return null; // Zwraca null w przypadku błędu
+      return null;
     }
   }
 
@@ -106,7 +106,6 @@ class ScreenController {
         builder: (context) => HomePage(
           user: user,
           showEmployerTasks: showEmployerTasks,
-          // Przekazanie accountType
         ),
       ),
     );
@@ -130,7 +129,6 @@ class ScreenController {
     );
   }
 
-  // Metoda do przejścia na ekran Przypomnienia hasła
   void goToForgotPasswordScreen(BuildContext context) {
     Navigator.push(
       context,

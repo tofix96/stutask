@@ -7,10 +7,10 @@ class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
   @override
-  _RegisterPageState createState() => _RegisterPageState();
+  RegisterPageState createState() => RegisterPageState();
 }
 
-class _RegisterPageState extends State<RegisterPage> {
+class RegisterPageState extends State<RegisterPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -27,6 +27,7 @@ class _RegisterPageState extends State<RegisterPage> {
           const SnackBar(
               content: Text('Rejestracja udana! Wysłano Email weryfikacyjny')),
         );
+        Navigator.pushReplacementNamed(context, '/');
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Błąd rejestracji: $e')),
@@ -43,28 +44,42 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: GradientBody(
-        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 80),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 80),
         child: Form(
-          key: _formKey, // Klucz formularza
+          key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
-                'Zarejestruj się!',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  shadows: [
-                    Shadow(
-                      blurRadius: 10.0,
-                      color: Colors.black45,
-                      offset: Offset(2, 2),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    iconSize: 24,
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  const SizedBox(width: 10),
+                  const Text(
+                    'Zarejestruj się!',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 36,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        Shadow(
+                          blurRadius: 10.0,
+                          color: Colors.black45,
+                          offset: Offset(2, 2),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-                textAlign: TextAlign.center,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               Text(

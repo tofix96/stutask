@@ -8,8 +8,42 @@ import 'package:stutask/widgets/detail_row.dart';
 import 'package:stutask/widgets/assigned_user_widget.dart';
 import 'package:stutask/widgets/widget_style.dart';
 
-class TaskDetailScreen extends StatelessWidget {
+class TaskDetailScreen extends StatefulWidget {
   const TaskDetailScreen({super.key});
+
+  @override
+  _TaskDetailScreenState createState() => _TaskDetailScreenState();
+}
+
+class _TaskDetailScreenState extends State<TaskDetailScreen> {
+  late Future<Task> taskDetails;
+  late String taskId;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Inicjalizacja danych, które zależą od kontekstu
+    final arguments = ModalRoute.of(context)!.settings.arguments as Map;
+    taskId = arguments['taskId'];
+    final taskService = Provider.of<TaskService>(context, listen: false);
+    taskDetails = taskService.getTaskDetails(taskId);
+  }
+
+  Future<void> _applyForTask(BuildContext context, String taskId) async {
+    final taskService = Provider.of<TaskService>(context, listen: false);
+
+    await taskService.applyForTask(taskId);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Zgłoszono aplikację do zadania.')),
+    );
+
+    // Odśwież dane po złożeniu aplikacji
+    setState(() {
+      final taskService = Provider.of<TaskService>(context, listen: false);
+      taskDetails = taskService.getTaskDetails(taskId);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +53,7 @@ class TaskDetailScreen extends StatelessWidget {
     final userService = Provider.of<UserService>(context, listen: false);
 
     return FutureBuilder<Task>(
-      future: taskService.getTaskDetails(taskId),
+      future: taskDetails,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -174,9 +208,26 @@ class TaskDetailScreen extends StatelessWidget {
                         Column(
                           children: [
                             if (currentUser.accountType == 'Pracownik')
-                              ElevatedButton(
-                                onPressed: () => _applyForTask(context, taskId),
-                                child: const Text('Aplikuj'),
+                              FutureBuilder(
+                                future: taskService.hasUserApplied(
+                                    taskId, currentUser.id),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const CircularProgressIndicator();
+                                  }
+
+                                  final hasApplied = snapshot.data ?? false;
+
+                                  return ElevatedButton(
+                                    onPressed: hasApplied
+                                        ? null
+                                        : () => _applyForTask(context, taskId),
+                                    child: Text(hasApplied
+                                        ? 'Już aplikowano'
+                                        : 'Aplikuj'),
+                                  );
+                                },
                               ),
                             if (currentUser.accountType == 'Pracodawca' &&
                                 task.creatorId == currentUser.id)
@@ -199,15 +250,6 @@ class TaskDetailScreen extends StatelessWidget {
           },
         );
       },
-    );
-  }
-
-  void _applyForTask(BuildContext context, String taskId) async {
-    final taskService = Provider.of<TaskService>(context, listen: false);
-
-    await taskService.applyForTask(taskId);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Zgłoszono aplikację do zadania.')),
     );
   }
 }

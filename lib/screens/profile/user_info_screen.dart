@@ -7,10 +7,10 @@ class UserInfoScreen extends StatefulWidget {
   const UserInfoScreen({super.key});
 
   @override
-  _UserInfoScreenState createState() => _UserInfoScreenState();
+  UserInfoScreenState createState() => UserInfoScreenState();
 }
 
-class _UserInfoScreenState extends State<UserInfoScreen> {
+class UserInfoScreenState extends State<UserInfoScreen> {
   final _formKey = GlobalKey<FormState>();
   final _bioController = TextEditingController();
   final _firstNameController = TextEditingController();
@@ -201,7 +201,7 @@ class _UserInfoScreenState extends State<UserInfoScreen> {
                     ),
                   ),
                   child: const Text(
-                    'Save Details',
+                    'Zapisz',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.black87,

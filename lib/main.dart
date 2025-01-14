@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'; // Import dla kIsWeb
 import 'package:provider/provider.dart'; // Import dla Provider
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'package:stutask/admin_review_screen.dart';
+import 'package:stutask/screens/moderator/admin_review_screen.dart';
 import 'package:stutask/screens/tasks/application_screen.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/home.dart';
@@ -17,7 +17,7 @@ import 'package:stutask/screens/chat/chat_screen.dart';
 import 'package:stutask/screens/chat/chats_overview_screen.dart';
 import 'package:stutask/bloc/user_service.dart';
 import 'package:stutask/bloc/task_service.dart';
-import 'package:stutask/screens/admin_screen.dart';
+import 'package:stutask/screens/moderator/admin_screen.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
@@ -40,7 +40,7 @@ void main() async {
   );
 
   await FirebaseAppCheck.instance.activate(
-    webProvider: kIsWeb ? null : null,
+    webProvider: kIsWeb ? ReCaptchaV3Provider('site-key') : null,
   );
 
   runApp(

@@ -19,10 +19,10 @@ class TaskListView extends StatefulWidget {
   });
 
   @override
-  _TaskListViewState createState() => _TaskListViewState();
+  TaskListViewState createState() => TaskListViewState();
 }
 
-class _TaskListViewState extends State<TaskListView> {
+class TaskListViewState extends State<TaskListView> {
   String _sortField = 'Nazwa';
   bool _isAscending = true;
   String _category = 'Wszystkie';

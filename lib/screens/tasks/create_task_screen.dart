@@ -6,10 +6,10 @@ class CreateTaskScreen extends StatefulWidget {
   const CreateTaskScreen({super.key});
 
   @override
-  _CreateTaskScreenState createState() => _CreateTaskScreenState();
+  CreateTaskScreenState createState() => CreateTaskScreenState();
 }
 
-class _CreateTaskScreenState extends State<CreateTaskScreen> {
+class CreateTaskScreenState extends State<CreateTaskScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
@@ -37,11 +37,11 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
             child: Column(
               children: [
                 TextFormField(
-                  maxLength: 50, // Maksymalna liczba znaków
+                  maxLength: 50,
                   controller: _nameController,
                   decoration: const InputDecoration(
                     labelText: 'Nazwa zadania',
-                    counterText: '', // Opcjonalnie ukrycie licznika znaków
+                    counterText: '',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -54,9 +54,9 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                   },
                 ),
                 TextFormField(
-                  maxLength: 300, // Maksymalna liczba znaków
+                  maxLength: 300,
                   controller: _descriptionController,
-                  minLines: 5, // Minimalna liczba linii tekstu
+                  minLines: 5,
                   maxLines: 10,
                   decoration: const InputDecoration(
                     labelText: 'Opis',
@@ -77,32 +77,36 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
                   controller: _priceController,
                   decoration: const InputDecoration(labelText: 'Cena (PLN)'),
                   keyboardType: TextInputType.number,
-                  validator: (value) => value == null ||
-                          value.isEmpty ||
-                          double.tryParse(value) == null
-                      ? 'Wprowadź poprawną cenę'
-                      : null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Wprowadź cenę';
+                    }
+                    final price = double.tryParse(value);
+                    if (price == null || price <= 0) {
+                      return 'Cena musi być dodatnią liczbą';
+                    }
+                    if (price > 99999) {
+                      return 'Cena nie może przekraczać 99999 PLN';
+                    }
+                    return null;
+                  },
                 ),
                 TextFormField(
                   controller: _timeController,
-                  readOnly:
-                      true, // Pole tylko do odczytu, aby nie można było edytować ręcznie
+                  readOnly: true,
                   decoration: const InputDecoration(
                     labelText: 'Czas wykonania',
-                    suffixIcon: Icon(Icons.calendar_today), // Ikona kalendarza
+                    suffixIcon: Icon(Icons.calendar_today),
                   ),
                   onTap: () async {
-                    // Wyświetl okno wyboru daty
                     final selectedDate = await showDatePicker(
                       context: context,
                       initialDate: DateTime.now(),
-                      firstDate:
-                          DateTime.now(), // Nie można wybrać dat z przeszłości
+                      firstDate: DateTime.now(),
                       lastDate: DateTime(2100),
                     );
 
                     if (selectedDate != null) {
-                      // Aktualizuj pole z wybraną datą
                       setState(() {
                         _timeController.text =
                             '${selectedDate.day}-${selectedDate.month}-${selectedDate.year}';
@@ -174,7 +178,19 @@ class _CreateTaskScreenState extends State<CreateTaskScreen> {
 
   Future<void> _pickImage() async {
     final pickedImage = await _taskService.pickImage();
+
     if (pickedImage != null) {
+      final fileSize = await pickedImage.length();
+      const maxSizeInBytes = 2 * 1024 * 1024;
+
+      if (fileSize > maxSizeInBytes) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Rozmiar zdjęcia nie może przekraczać 2 MB')),
+        );
+        return;
+      }
+
       setState(() {
         _imageFile = pickedImage;
       });

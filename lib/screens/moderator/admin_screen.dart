@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:stutask/admin_review_screen.dart';
+import 'package:stutask/screens/moderator/admin_review_screen.dart';
 import 'package:stutask/widgets/task_list_view.dart';
 import 'package:stutask/screens/auth/login_screen.dart';
 import 'package:stutask/bloc/auth_providers.dart' as custom_auth;
@@ -12,10 +12,10 @@ class AdminPage extends StatefulWidget {
   const AdminPage({super.key, required this.user});
 
   @override
-  _AdminPageState createState() => _AdminPageState();
+  AdminPageState createState() => AdminPageState();
 }
 
-class _AdminPageState extends State<AdminPage> {
+class AdminPageState extends State<AdminPage> {
   int selectedIndex = 0;
 
   List<Widget> _widgetOptions(User user) => <Widget>[
@@ -92,7 +92,7 @@ class _AdminPageState extends State<AdminPage> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.star),
-            label: 'Moje zadania',
+            label: 'Opinie',
           ),
         ],
         currentIndex: selectedIndex,

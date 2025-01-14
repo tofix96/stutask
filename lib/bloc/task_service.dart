@@ -51,6 +51,17 @@ class TaskService {
     });
   }
 
+  Future<bool> hasUserApplied(String taskId, String userId) async {
+    final querySnapshot = await _firestore
+        .collection('tasks')
+        .doc(taskId)
+        .collection('applications')
+        .where('userId', isEqualTo: userId)
+        .get();
+
+    return querySnapshot.docs.isNotEmpty;
+  }
+
   Future<void> applyForTask(String taskId) async {
     final currentUser = FirebaseAuth.instance.currentUser;
     if (currentUser == null) return;
@@ -62,7 +73,6 @@ class TaskService {
     });
   }
 
-  //funkcja inicjalizujaca czat
   Future<void> startChat(
       String taskId, String userId, String employerId) async {
     final chatRef =
@@ -70,7 +80,6 @@ class TaskService {
 
     final chatSnapshot = await chatRef.get();
 
-    // Jeśli chat jeszcze nie istnieje, utwórz go
     if (!chatSnapshot.exists) {
       await chatRef.set({
         'taskId': taskId,
@@ -79,8 +88,6 @@ class TaskService {
         'createdAt': Timestamp.now(),
       });
     }
-
-    // Użyj metody ze ScreenController do nawigacji
     _screenController.navigateToChatScreen(
         navigatorKey.currentState!.context, chatRef.id, taskId);
   }
@@ -99,7 +106,6 @@ class TaskService {
   }) async {
     final userRef = _firestore.collection('D_Users').doc(assignedUserId);
 
-    // Zapisz opinię
     await userRef.collection('reviews').add({
       'taskId': taskId,
       'review': reviewText,
@@ -107,14 +113,12 @@ class TaskService {
       'timestamp': Timestamp.now(),
     });
 
-    // Oznacz zadanie jako zakończone
     await _firestore.collection('tasks').doc(taskId).update({
       'completed': true,
       'completionTimestamp': Timestamp.now(),
     });
   }
 
-  // Funkcja do tworzenia zadania, obsługująca walidację i przesyłanie zdjęcia
   Future<void> createTaskWithValidation({
     required GlobalKey<FormState> formKey,
     required TextEditingController nameController,
@@ -150,8 +154,7 @@ class TaskService {
         const SnackBar(content: Text('Zadanie zostało utworzone')),
       );
 
-      _screenController.navigateToHome(
-          context, user); // Użycie ScreenController do nawigacji
+      _screenController.navigateToHome(context, user);
     }
   }
 }

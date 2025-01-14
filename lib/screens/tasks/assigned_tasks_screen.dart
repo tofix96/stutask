@@ -13,10 +13,10 @@ class AssignedTasksScreen extends StatefulWidget {
   });
 
   @override
-  _AssignedTasksScreenState createState() => _AssignedTasksScreenState();
+  AssignedTasksScreenState createState() => AssignedTasksScreenState();
 }
 
-class _AssignedTasksScreenState extends State<AssignedTasksScreen> {
+class AssignedTasksScreenState extends State<AssignedTasksScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

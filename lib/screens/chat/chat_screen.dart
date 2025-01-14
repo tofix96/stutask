@@ -14,10 +14,10 @@ class ChatScreen extends StatefulWidget {
   ChatScreen({required this.chatId, required this.taskId, super.key});
 
   @override
-  _ChatScreenState createState() => _ChatScreenState();
+  ChatScreenState createState() => ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final User? _currentUser = FirebaseAuth.instance.currentUser;
 

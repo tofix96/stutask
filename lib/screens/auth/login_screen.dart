@@ -6,15 +6,15 @@ class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final ScreenController _screenController = ScreenController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String? _errorMessage; // Pole na komunikat o błędzie
+  String? _errorMessage;
   final ScreenController screenController = ScreenController();
 
   @override
@@ -195,7 +195,6 @@ class _LoginPageState extends State<LoginPage> {
             backgroundColor: Colors.green,
           ),
         );
-        // Przejdź do następnego ekranu
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

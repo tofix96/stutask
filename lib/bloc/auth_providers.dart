@@ -9,7 +9,7 @@ class AuthProvider with ChangeNotifier {
 
   void setToken(String? token) {
     _token = token;
-    notifyListeners(); // Powiadamia o zmianie stanu
+    notifyListeners();
   }
 
   // Metoda rejestracji użytkownika
@@ -39,21 +39,17 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Rejestracja z email i hasłem oraz wysyłanie maila weryfikacyjnego
+  // Rejestracja z email
   Future<User?> _signUpWithEmailAndPassword(
       String email, String password) async {
     try {
-      // Tworzenie konta
       UserCredential credential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-
-      // Pobranie użytkownika
       User? user = credential.user;
 
       if (user != null) {
-        // Wysłanie e-maila weryfikacyjnego
         await user.sendEmailVerification();
         print("Wysłano e-mail weryfikacyjny.");
       }
@@ -76,9 +72,7 @@ class AuthProvider with ChangeNotifier {
       User? user = userCredential.user;
 
       if (user != null) {
-        // Sprawdzenie, czy e-mail został zweryfikowany
         if (!user.emailVerified) {
-          // Wylogowanie i rzucenie wyjątku dla niezweryfikowanego e-maila
           await _auth.signOut();
           throw FirebaseAuthException(
             code: 'email-not-verified',
@@ -86,7 +80,6 @@ class AuthProvider with ChangeNotifier {
           );
         }
 
-        // Pobranie tokena i zapisanie go
         String? token = await user.getIdToken();
         setToken(token);
         return user;
@@ -97,17 +90,15 @@ class AuthProvider with ChangeNotifier {
         );
       }
     } on FirebaseAuthException catch (e) {
-      // Obsługa błędów Firebase
       if (e.code == 'user-not-found' || e.code == 'wrong-password') {
         throw FirebaseAuthException(
           code: 'invalid-credentials',
           message: 'Nieprawidłowy email lub hasło.',
         );
       } else {
-        rethrow; // Rzucenie innych błędów
+        rethrow;
       }
     } catch (e) {
-      // Rzucenie innych wyjątków
       throw Exception('Unexpected error: $e');
     }
   }
