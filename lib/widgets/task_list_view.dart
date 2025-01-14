@@ -35,8 +35,12 @@ class TaskListViewState extends State<TaskListView> {
   @override
   void initState() {
     super.initState();
-    _fetchData();
-    _fetchAccountType();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    await _fetchAccountType(); // Poczekaj na załadowanie typu konta
+    _fetchData(); // Załaduj dane dopiero po ustawieniu accountType
   }
 
   Future<void> _deleteTask(String taskId) async {
@@ -68,28 +72,45 @@ class TaskListViewState extends State<TaskListView> {
     print(accountType);
   }
 
+  // Funkcja do wyświetlania pełnej listy zadań dla administratora
   Future<void> _fetchData() async {
     try {
       QuerySnapshot snapshot;
 
-      if (widget.filterByAssignedTasks) {
+      if (accountType == 'Administrator') {
+        // Jeśli użytkownik jest administratorem, pokaż pełną listę
+        snapshot = await FirebaseFirestore.instance
+            .collection('tasks')
+            .orderBy('createdAt') // Posortowane po dacie utworzenia
+            .where('completed', isEqualTo: false)
+            .get();
+        print('Admin1');
+      } else if (widget.filterByAssignedTasks) {
+        // Jeśli jest filtrowanie po przypisanych zadaniach
         snapshot = await FirebaseFirestore.instance
             .collection('tasks')
             .where('assignedUserId', isEqualTo: widget.user.uid)
             .where('completed', isEqualTo: false)
+            .where('admin_accept', isEqualTo: true)
             .get();
+        print('Admin2');
       } else if (widget.filterByCreatedTasks) {
+        // Jeśli jest filtrowanie po zadaniach stworzonych przez użytkownika
         snapshot = await FirebaseFirestore.instance
             .collection('tasks')
             .where('userId', isEqualTo: widget.user.uid)
             .where('completed', isEqualTo: false)
             .get();
+        print('Admin3');
       } else {
+        // Domyślne pobranie zadań
         snapshot = await FirebaseFirestore.instance
             .collection('tasks')
             .where('completed', isEqualTo: false)
+            .where('admin_accept', isEqualTo: true)
             .orderBy('createdAt')
             .get();
+        print('Admin4');
       }
 
       setState(() {
@@ -105,6 +126,30 @@ class TaskListViewState extends State<TaskListView> {
       setState(() {
         isLoading = false;
       });
+    }
+  }
+
+  Future<void> updateAdminAccept(String taskId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('tasks')
+          .doc(taskId)
+          .update({'admin_accept': true});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Zadanie zostało zaakceptowane do wyświetlenia.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      // Odśwież dane po aktualizacji
+      _fetchData();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Błąd podczas aktualizacji zadania: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -204,7 +249,7 @@ class TaskListViewState extends State<TaskListView> {
               ].map<DropdownMenuItem<String>>((String value) {
                 return DropdownMenuItem<String>(
                   value: value,
-                  child: Text('Kat: $value'),
+                  child: Text(' $value'),
                 );
               }).toList(),
             ),
@@ -227,7 +272,11 @@ class TaskListViewState extends State<TaskListView> {
                           price: (task['Cena'] ?? 0).toString(),
                           imageUrl: task['zdjecie'] ?? '',
                           isAdmin: accountType == 'Administrator',
+                          isAdminAccepted: task['admin_accept'] is bool
+                              ? task['admin_accept']
+                              : false,
                           onDelete: () => _deleteTask(task['id']),
+                          onAdminAccept: () => updateAdminAccept(task['id']),
                         );
                       },
                     ),

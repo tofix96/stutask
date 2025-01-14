@@ -148,6 +148,7 @@ class TaskService {
         'userId': user?.uid,
         'completed': false,
         'createdAt': Timestamp.now(),
+        'admin_accept': false,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(

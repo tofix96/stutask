@@ -114,7 +114,7 @@ class ChatScreenState extends State<ChatScreen> {
                         ),
                         const SizedBox(height: 4.0),
                         Text(
-                          '\$${_taskDetails!.price.toStringAsFixed(2)}',
+                          '${_taskDetails!.price.toStringAsFixed(2)} PLN',
                           style: TextStyle(
                             fontSize: 14.0,
                             color: Colors.green.shade700,
