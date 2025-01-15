@@ -28,6 +28,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final UserService _userService = UserService();
   String? accountType = 'Pracownik';
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +41,9 @@ class _HomePageState extends State<HomePage> {
       final type = await _userService.getAccountType(userId);
       setState(() {
         accountType = type ?? 'Nieznany';
+        if (selectedIndex >= _getNavigationBarItems().length) {
+          selectedIndex = 0;
+        }
       });
     } else {
       print('User ID jest null');
@@ -57,6 +61,22 @@ class _HomePageState extends State<HomePage> {
         CreateTaskScreen(),
       ];
 
+  List<BottomNavigationBarItem> _getNavigationBarItems() {
+    List<BottomNavigationBarItem> items = [
+      BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Zadania'),
+      BottomNavigationBarItem(
+          icon: Icon(Icons.filter_list), label: 'Moje zadania'),
+      BottomNavigationBarItem(icon: Icon(Icons.face), label: 'Profil'),
+    ];
+    if (accountType == 'Pracodawca') {
+      items.add(const BottomNavigationBarItem(
+        icon: Icon(Icons.add),
+        label: 'Dodaj Zadanie',
+      ));
+    }
+    return items;
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       selectedIndex = index;
@@ -65,6 +85,11 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final itemsCount = _getNavigationBarItems().length;
+    if (selectedIndex >= itemsCount) {
+      selectedIndex = 0;
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Stutask'),
@@ -141,25 +166,7 @@ class _HomePageState extends State<HomePage> {
           : const Center(child: Text('Nie znaleziono danych użytkownika.')),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.list),
-            label: 'Zadania',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.filter_list),
-            label: 'Moje zadania',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.face),
-            label: 'Profil',
-          ),
-          if (accountType == 'Pracodawca')
-            const BottomNavigationBarItem(
-              icon: Icon(Icons.add),
-              label: 'Dodaj Zadanie',
-            ),
-        ],
+        items: _getNavigationBarItems(),
         currentIndex: selectedIndex,
         selectedItemColor: const Color.fromARGB(255, 255, 153, 0),
         onTap: _onItemTapped,
