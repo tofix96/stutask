@@ -51,11 +51,24 @@ class TaskService {
             .orderBy('createdAt')
             .get();
       }
+      final tasks = snapshot.docs.map((doc) {
+        return Task.fromFirestore(doc.id, doc.data() as Map<String, dynamic>);
+      }).toList();
 
-      return snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        data['id'] = doc.id;
-        return data;
+      // Konwersja obiektów `Task` na `Map<String, dynamic>`
+      return tasks.map((task) {
+        return {
+          'id': task.id,
+          'Nazwa': task.name,
+          'Opis': task.description,
+          'Cena': task.price,
+          'Kategoria': task.category,
+          'Czas': task.time,
+          'zdjecie': task.imageUrl,
+          'userId': task.creatorId,
+          'completed': task.completed,
+          'assignedUserId': task.assignedUserId,
+        };
       }).toList();
     } catch (e) {
       throw Exception('Błąd podczas pobierania zadań: $e');

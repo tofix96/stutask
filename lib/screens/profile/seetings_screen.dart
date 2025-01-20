@@ -17,7 +17,6 @@ class SettingsScreenState extends State<SettingsScreen> {
   final _lastNameController = TextEditingController();
   final _accountTypeController = TextEditingController();
   final _ageController = TextEditingController();
-
   final UserService _userService = UserService();
   final ScreenController _screenController = ScreenController();
 
@@ -57,48 +56,21 @@ class SettingsScreenState extends State<SettingsScreen> {
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFEF6C00),
-              Color(0xFFFFA726),
-              Color(0xFFFFC107),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 50),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 25),
           child: Form(
             key: _formKey,
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  const Text(
-                    'Ustawienia',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      shadows: [
-                        Shadow(
-                          blurRadius: 10.0,
-                          color: Colors.black45,
-                          offset: Offset(2, 2),
-                        ),
-                      ],
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10),
                   TextFormField(
                     controller: _firstNameController,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                     decoration: InputDecoration(
                       labelText: 'Imię',
-                      labelStyle: const TextStyle(color: Colors.white),
+                      labelStyle:
+                          const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.2),
                       border: OutlineInputBorder(
@@ -116,10 +88,11 @@ class SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _lastNameController,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                     decoration: InputDecoration(
                       labelText: 'Nazwisko',
-                      labelStyle: const TextStyle(color: Colors.white),
+                      labelStyle:
+                          const TextStyle(color: Color.fromARGB(255, 0, 0, 0)),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.2),
                       border: OutlineInputBorder(
@@ -137,10 +110,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 10),
                   TextFormField(
                     controller: _ageController,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.black),
                     decoration: InputDecoration(
                       labelText: 'Wiek',
-                      labelStyle: const TextStyle(color: Colors.white),
+                      labelStyle: const TextStyle(color: Colors.black),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.2),
                       border: OutlineInputBorder(
@@ -166,12 +139,12 @@ class SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 20),
                   TextFormField(
                     controller: _bioController,
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: Colors.black),
                     minLines: 2,
                     maxLines: 3,
                     decoration: InputDecoration(
                       labelText: 'Bio',
-                      labelStyle: const TextStyle(color: Colors.white),
+                      labelStyle: const TextStyle(color: Colors.black),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.2),
                       border: OutlineInputBorder(
@@ -196,7 +169,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 50,
+                        horizontal: 30,
                         vertical: 15,
                       ),
                       shape: RoundedRectangleBorder(
@@ -205,10 +178,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                     child: const Text(
                       'Zapisz',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black87,
-                      ),
+                      style: TextStyle(fontSize: 18),
                     ),
                   ),
                 ],

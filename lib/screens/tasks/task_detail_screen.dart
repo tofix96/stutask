@@ -23,7 +23,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Inicjalizacja danych, które zależą od kontekstu
     final arguments = ModalRoute.of(context)!.settings.arguments as Map;
     taskId = arguments['taskId'];
     final taskService = Provider.of<TaskService>(context, listen: false);
@@ -38,7 +37,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
       const SnackBar(content: Text('Zgłoszono aplikację do zadania.')),
     );
 
-    // Odśwież dane po złożeniu aplikacji
     setState(() {
       final taskService = Provider.of<TaskService>(context, listen: false);
       taskDetails = taskService.getTaskDetails(taskId);
@@ -83,7 +81,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Nazwa zadania
                       Align(
                         alignment: Alignment.center,
                         child: Text(
@@ -95,7 +92,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-
                       Card(
                         elevation: 2,
                         shape: RoundedRectangleBorder(
@@ -132,8 +128,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                           ),
                         ),
                       const SizedBox(height: 20),
-
-                      // Opis
                       Text(
                         'Opis:',
                         style: const TextStyle(
@@ -147,8 +141,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                         style: const TextStyle(fontSize: 16, height: 1.5),
                       ),
                       const SizedBox(height: 30),
-
-                      // Przypisany użytkownik lub akcje
                       if (task.assignedUserId != null)
                         FutureBuilder<UserModel?>(
                           future:
@@ -165,7 +157,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
 
                             final assignedUser = assignedUserSnapshot.data!;
 
-                            // Sprawdź, czy bieżący użytkownik to twórca zadania
                             return FutureBuilder<UserModel>(
                               future: userService.getCurrentUser(),
                               builder: (context, currentUserSnapshot) {
@@ -181,7 +172,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                 final currentUser = currentUserSnapshot.data!;
 
                                 if (currentUser.id == task.creatorId) {
-                                  // Wyświetl przycisk zakończenia zadania
                                   return AssignedUserWidget(
                                     assignedUser: assignedUser,
                                     taskId: taskId,

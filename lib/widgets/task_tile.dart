@@ -7,10 +7,10 @@ class TaskTile extends StatelessWidget {
   final String taskDescription;
   final String price;
   final String? imageUrl;
-  final bool isAdmin; // Czy użytkownik to administrator
-  final bool isAdminAccepted; // Czy zadanie zostało zaakceptowane
-  final VoidCallback onDelete; // Funkcja do usuwania zadania
-  final VoidCallback? onAdminAccept; // Funkcja do akceptowania zadania
+  final bool isAdmin;
+  final bool isAdminAccepted;
+  final VoidCallback onDelete;
+  final VoidCallback? onAdminAccept;
 
   const TaskTile({
     required this.taskId,
@@ -19,9 +19,9 @@ class TaskTile extends StatelessWidget {
     required this.price,
     this.imageUrl,
     required this.isAdmin,
-    required this.isAdminAccepted, // Status akceptacji
+    required this.isAdminAccepted,
     required this.onDelete,
-    this.onAdminAccept, // Akceptowanie zadania
+    this.onAdminAccept,
     super.key,
   });
 
@@ -88,17 +88,17 @@ class TaskTile extends StatelessWidget {
                   ],
                 ),
               ),
-              if (isAdmin) // Wyświetl przyciski tylko dla administratorów
+              if (isAdmin)
                 Row(
                   children: [
                     IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
-                      onPressed: onDelete, // Wywołaj funkcję usuwania
+                      onPressed: onDelete,
                     ),
-                    if (!isAdminAccepted) // Wyświetl przycisk akceptacji tylko, gdy admin_accept == false
+                    if (!isAdminAccepted)
                       IconButton(
                         icon: const Icon(Icons.thumb_up, color: Colors.blue),
-                        onPressed: onAdminAccept, // Wywołaj funkcję akceptacji
+                        onPressed: onAdminAccept,
                       ),
                   ],
                 ),

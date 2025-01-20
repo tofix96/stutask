@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stutask/bloc/screen_controller.dart'; // Import do funkcji nawigacji
+import 'package:stutask/bloc/screen_controller.dart';
 import 'package:stutask/widgets/widget_style.dart';
 
 class LoginPage extends StatefulWidget {
@@ -29,7 +29,7 @@ class LoginPageState extends State<LoginPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
-                'Welcome Back!',
+                'Witaj!',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 36,

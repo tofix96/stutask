@@ -74,7 +74,7 @@ class UserInfoScreenState extends State<UserInfoScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Enter your bio';
+                      return 'Powiedz coś o sobie';
                     }
                     return null;
                   },
@@ -84,7 +84,7 @@ class UserInfoScreenState extends State<UserInfoScreen> {
                   controller: _firstNameController,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    labelText: 'First Name',
+                    labelText: 'Imie',
                     labelStyle: const TextStyle(color: Colors.white),
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.2),
@@ -95,7 +95,7 @@ class UserInfoScreenState extends State<UserInfoScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Enter your first name';
+                      return 'Podaj imie';
                     }
                     return null;
                   },
@@ -105,7 +105,7 @@ class UserInfoScreenState extends State<UserInfoScreen> {
                   controller: _lastNameController,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    labelText: 'Last Name',
+                    labelText: 'Nazwisko',
                     labelStyle: const TextStyle(color: Colors.white),
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.2),
@@ -116,7 +116,7 @@ class UserInfoScreenState extends State<UserInfoScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Enter your last name';
+                      return 'Podaj nazwisko';
                     }
                     return null;
                   },
@@ -129,7 +129,7 @@ class UserInfoScreenState extends State<UserInfoScreen> {
                   style: const TextStyle(color: Colors.white),
                   dropdownColor: Colors.black54,
                   decoration: InputDecoration(
-                    labelText: 'Account Type',
+                    labelText: 'Typ konta',
                     labelStyle: const TextStyle(color: Colors.white),
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.2),
@@ -143,8 +143,6 @@ class UserInfoScreenState extends State<UserInfoScreen> {
                         value: 'Pracownik', child: Text('Pracownik')),
                     DropdownMenuItem(
                         value: 'Pracodawca', child: Text('Pracodawca')),
-                    DropdownMenuItem(
-                        value: 'Administrator', child: Text('Administrator')),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -153,7 +151,7 @@ class UserInfoScreenState extends State<UserInfoScreen> {
                   },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Select account type';
+                      return 'Wybierz typ konta';
                     }
                     return null;
                   },
@@ -175,7 +173,7 @@ class UserInfoScreenState extends State<UserInfoScreen> {
                   keyboardType: TextInputType.number,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Enter your age';
+                      return 'Podaj wiek';
                     }
                     return null;
                   },

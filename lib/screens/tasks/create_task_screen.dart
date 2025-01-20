@@ -60,7 +60,7 @@ class CreateTaskScreenState extends State<CreateTaskScreen> {
                   maxLines: 10,
                   decoration: const InputDecoration(
                     labelText: 'Opis',
-                    counterText: '', // Opcjonalnie ukrycie licznika znaków
+                    counterText: '',
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
