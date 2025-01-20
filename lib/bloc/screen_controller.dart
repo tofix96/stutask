@@ -8,7 +8,6 @@ import 'package:stutask/screens/home.dart';
 import 'package:stutask/screens/auth/register_screen.dart';
 import 'package:stutask/screens/profile/user_info_screen.dart';
 import 'package:stutask/screens/tasks/application_screen.dart';
-import 'package:stutask/screens/tasks/assigned_tasks_screen.dart';
 import 'package:stutask/screens/auth/forgot_password.dart';
 
 class ScreenController {
@@ -66,18 +65,16 @@ class ScreenController {
     if (accountType == 'Pracownik') {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => AssignedTasksScreen(
+          builder: (_) => HomePage(
             user: user,
-            accountType: 'Pracownik',
           ),
         ),
       );
     } else if (accountType == 'Pracodawca') {
       Navigator.of(context).push(
         MaterialPageRoute(
-          builder: (_) => AssignedTasksScreen(
+          builder: (_) => HomePage(
             user: user,
-            accountType: 'Pracodawca',
           ),
         ),
       );
@@ -129,7 +126,7 @@ class ScreenController {
     );
   }
 
-  void goToForgotPasswordScreen(BuildContext context) {
+  void navigateToForgotPasswordScreen(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ForgotPasswordScreen()),

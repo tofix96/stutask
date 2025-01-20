@@ -19,7 +19,6 @@ class UserInfoScreenState extends State<UserInfoScreen> {
   final _ageController = TextEditingController();
   final UserService _userService = UserService();
 
-  // Funkcja zapisująca informacje o użytkowniku
   Future<void> _saveUserInfo() async {
     await _userService.saveUserInfo(
       bio: _bioController.text,
@@ -28,8 +27,6 @@ class UserInfoScreenState extends State<UserInfoScreen> {
       accountType: _accountTypeController.text,
       age: _ageController.text,
     );
-
-    // Przekierowanie na ekran główny po zapisaniu danych
     Navigator.pushReplacementNamed(context, '/home',
         arguments: FirebaseAuth.instance.currentUser);
   }

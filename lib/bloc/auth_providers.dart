@@ -12,7 +12,6 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Metoda rejestracji użytkownika
   Future<void> registerUser(
       BuildContext context, String email, String password) async {
     if (email.isEmpty || password.isEmpty) {
@@ -39,7 +38,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Rejestracja z email
   Future<User?> _signUpWithEmailAndPassword(
       String email, String password) async {
     try {

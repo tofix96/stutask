@@ -128,8 +128,8 @@ class LoginPageState extends State<LoginPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   TextButton(
-                    onPressed: () =>
-                        screenController.goToForgotPasswordScreen(context),
+                    onPressed: () => screenController
+                        .navigateToForgotPasswordScreen(context),
                     child: const Text(
                       'Zapomniałeś hasła?',
                       style: TextStyle(
@@ -158,7 +158,6 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  // Funkcja logowania
   void _loginUser() async {
     setState(() {
       _errorMessage = null;

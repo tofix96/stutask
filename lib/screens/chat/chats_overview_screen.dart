@@ -72,9 +72,7 @@ class ChatOverviewScreen extends StatelessWidget {
                   }
 
                   if (!taskSnapshot.hasData || !taskSnapshot.data!.exists) {
-                    return const ListTile(
-                      title: Text('Nie znaleziono zadania'),
-                    );
+                    return Container();
                   }
 
                   final taskData =

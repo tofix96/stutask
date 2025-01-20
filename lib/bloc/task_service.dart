@@ -13,8 +13,70 @@ class TaskService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final firebase_storage.FirebaseStorage _storage =
       firebase_storage.FirebaseStorage.instance;
-  final ScreenController _screenController =
-      ScreenController(); // Dodaj instancję ScreenController
+  final ScreenController _screenController = ScreenController();
+
+  Future<List<Map<String, dynamic>>> fetchTasks({
+    required String accountType,
+    required String userId,
+    bool filterByAssignedTasks = false,
+    bool filterByCreatedTasks = false,
+  }) async {
+    QuerySnapshot snapshot;
+
+    try {
+      if (accountType == 'Administrator') {
+        snapshot = await _firestore
+            .collection('tasks')
+            .orderBy('admin_accept', descending: false)
+            .where('completed', isEqualTo: false)
+            .get();
+      } else if (filterByAssignedTasks) {
+        snapshot = await _firestore
+            .collection('tasks')
+            .where('assignedUserId', isEqualTo: userId)
+            .where('completed', isEqualTo: false)
+            .where('admin_accept', isEqualTo: true)
+            .get();
+      } else if (filterByCreatedTasks) {
+        snapshot = await _firestore
+            .collection('tasks')
+            .where('userId', isEqualTo: userId)
+            .where('completed', isEqualTo: false)
+            .get();
+      } else {
+        snapshot = await _firestore
+            .collection('tasks')
+            .where('completed', isEqualTo: false)
+            .where('admin_accept', isEqualTo: true)
+            .orderBy('createdAt')
+            .get();
+      }
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        data['id'] = doc.id;
+        return data;
+      }).toList();
+    } catch (e) {
+      throw Exception('Błąd podczas pobierania zadań: $e');
+    }
+  }
+
+  Future<void> deleteTask(String taskId) async {
+    try {
+      await _firestore.collection('tasks').doc(taskId).delete();
+    } catch (e) {
+      throw Exception('Błąd podczas usuwania zadania: $e');
+    }
+  }
+
+  Future<void> updateTask(String taskId, Map<String, dynamic> updates) async {
+    try {
+      await _firestore.collection('tasks').doc(taskId).update(updates);
+    } catch (e) {
+      throw Exception('Błąd podczas aktualizacji zadania: $e');
+    }
+  }
 
   // Pobranie imienia użytkownika z Firestore
   Future<String?> getUserName() async {
@@ -98,6 +160,25 @@ class TaskService {
     return Task.fromFirestore(taskSnapshot.id, taskSnapshot.data()!);
   }
 
+  Future<void> addTask(Task task) async {
+    try {
+      await _firestore.collection('tasks').add({
+        'Nazwa': task.name,
+        'Opis': task.description,
+        'Cena': task.price,
+        'Czas': task.time,
+        'Kategoria': task.category,
+        'zdjecie': task.imageUrl,
+        'userId': task.creatorId,
+        'completed': task.completed,
+        'createdAt': Timestamp.now(),
+        'admin_accept': false,
+      });
+    } catch (e) {
+      throw Exception('Błąd podczas dodawania zadania: $e');
+    }
+  }
+
   Future<void> submitReview({
     required String taskId,
     required String assignedUserId,
@@ -132,30 +213,40 @@ class TaskService {
   }) async {
     if (formKey.currentState!.validate()) {
       String? imageUrl;
+
+      // Upload image if provided
       if (imageFile != null) {
         imageUrl = await uploadImage(imageFile);
       }
 
       final user = _auth.currentUser;
-      await _firestore.collection('tasks').add({
-        'Nazwa': nameController.text,
-        'Opis': descriptionController.text,
-        'Cena': double.parse(priceController.text),
-        'Czas': timeController.text,
-        'Kategoria': selectedCategory,
-        'Creator': creatorName ?? 'Nieznany',
-        'zdjecie': imageUrl,
-        'userId': user?.uid,
-        'completed': false,
-        'createdAt': Timestamp.now(),
-        'admin_accept': false,
-      });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Zadanie zostało utworzone')),
+      // Tworzenie obiektu Task
+      final task = Task(
+        id: '',
+        name: nameController.text,
+        description: descriptionController.text,
+        price: double.parse(priceController.text),
+        category: selectedCategory ?? 'Nieznana',
+        time: timeController.text,
+        imageUrl: imageUrl,
+        creatorId: user?.uid ?? '',
+        completed: false,
+        assignedUserId: null,
       );
 
-      _screenController.navigateToHome(context, user);
+      try {
+        // Zapis do Firestore przez serwis
+        await addTask(task);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Zadanie zostało utworzone')),
+        );
+        _screenController.navigateToHome(context, user);
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Błąd podczas tworzenia zadania: $e')),
+        );
+      }
     }
   }
 }

@@ -77,7 +77,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   const Text(
-                    'Settings',
+                    'Ustawienia',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 28,
@@ -139,7 +139,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     controller: _ageController,
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
-                      labelText: 'Age',
+                      labelText: 'Wiek',
                       labelStyle: const TextStyle(color: Colors.white),
                       filled: true,
                       fillColor: Colors.white.withOpacity(0.2),
@@ -151,14 +151,14 @@ class SettingsScreenState extends State<SettingsScreen> {
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Enter your age';
+                        return 'Podaj swój wiek';
                       }
                       final age = int.tryParse(value);
                       if (age == null) {
-                        return 'Enter a valid number';
+                        return 'Podaj poprawny wiek';
                       }
                       if (age < 16) {
-                        return 'You must be at least 16 years old';
+                        return 'Musisz mieć przynajmniej 16 lat';
                       }
                       return null;
                     },
@@ -181,7 +181,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Enter your bio';
+                        return 'Powiedz coś o sobie';
                       }
                       return null;
                     },
@@ -204,7 +204,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                     child: const Text(
-                      'Save Changes',
+                      'Zapisz',
                       style: TextStyle(
                         fontSize: 18,
                         color: Colors.black87,

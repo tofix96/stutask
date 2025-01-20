@@ -46,7 +46,6 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Wiersz z przyciskiem cofania i tytułem
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -58,7 +57,7 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     Navigator.pop(context);
                   },
                 ),
-                const SizedBox(width: 10), // Odstęp między ikoną a tekstem
+                const SizedBox(width: 10),
                 const Text(
                   'Przypomnienie hasła',
                   style: TextStyle(
@@ -77,7 +76,6 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ],
             ),
             const SizedBox(height: 20),
-            // Treść ekranu
             Text(
               'Podaj swój adres e-mail, aby otrzymać link do resetu hasła.',
               textAlign: TextAlign.center,
@@ -87,7 +85,6 @@ class ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            // Pole tekstowe
             TextField(
               controller: _emailController,
               decoration: InputDecoration(

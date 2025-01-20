@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stutask/widgets/task_tile.dart';
 import 'package:stutask/bloc/user_service.dart';
+import 'package:stutask/bloc/task_service.dart';
 
 class TaskListView extends StatefulWidget {
   final User user;
@@ -23,13 +23,15 @@ class TaskListView extends StatefulWidget {
 }
 
 class TaskListViewState extends State<TaskListView> {
+  final TaskService _taskService = TaskService();
+  final UserService _userService = UserService();
+
   String _sortField = 'Nazwa';
   bool _isAscending = true;
   String _category = 'Wszystkie';
   String _searchQuery = '';
   List<Map<String, dynamic>> localData = [];
   bool isLoading = true;
-  final UserService _userService = UserService();
   String? accountType = 'NULL';
 
   @override
@@ -39,13 +41,44 @@ class TaskListViewState extends State<TaskListView> {
   }
 
   Future<void> _initializeData() async {
-    await _fetchAccountType(); // Poczekaj na załadowanie typu konta
-    _fetchData(); // Załaduj dane dopiero po ustawieniu accountType
+    await _fetchAccountType();
+    _fetchData();
+  }
+
+  Future<void> _fetchAccountType() async {
+    final userId = widget.user.uid;
+    final type = await _userService.getAccountType(userId);
+    setState(() {
+      accountType = type ?? 'Nieznany';
+    });
+  }
+
+  Future<void> _fetchData() async {
+    setState(() => isLoading = true);
+
+    try {
+      final data = await _taskService.fetchTasks(
+        accountType: accountType!,
+        userId: widget.user.uid,
+        filterByAssignedTasks: widget.filterByAssignedTasks,
+        filterByCreatedTasks: widget.filterByCreatedTasks,
+      );
+
+      setState(() {
+        localData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Błąd podczas pobierania zadań: $e')),
+      );
+    }
   }
 
   Future<void> _deleteTask(String taskId) async {
     try {
-      await FirebaseFirestore.instance.collection('tasks').doc(taskId).delete();
+      await _taskService.deleteTask(taskId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Zadanie zostało usunięte.'),
@@ -55,100 +88,21 @@ class TaskListViewState extends State<TaskListView> {
       _fetchData();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Błąd podczas usuwania zadania: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Błąd podczas usuwania zadania: $e')),
       );
-    }
-  }
-
-  Future<void> _fetchAccountType() async {
-    final userId = widget.user.uid;
-    final type = await _userService.getAccountType(userId);
-    setState(() {
-      accountType = type ?? 'Nieznany';
-    });
-    print(accountType);
-  }
-
-  // Funkcja do wyświetlania pełnej listy zadań dla administratora
-  Future<void> _fetchData() async {
-    try {
-      QuerySnapshot snapshot;
-
-      if (accountType == 'Administrator') {
-        // Jeśli użytkownik jest administratorem, pokaż pełną listę
-        snapshot = await FirebaseFirestore.instance
-            .collection('tasks')
-            .orderBy('createdAt') // Posortowane po dacie utworzenia
-            .where('completed', isEqualTo: false)
-            .get();
-        print('Admin1');
-      } else if (widget.filterByAssignedTasks) {
-        // Jeśli jest filtrowanie po przypisanych zadaniach
-        snapshot = await FirebaseFirestore.instance
-            .collection('tasks')
-            .where('assignedUserId', isEqualTo: widget.user.uid)
-            .where('completed', isEqualTo: false)
-            .where('admin_accept', isEqualTo: true)
-            .get();
-        print('Admin2');
-      } else if (widget.filterByCreatedTasks) {
-        // Jeśli jest filtrowanie po zadaniach stworzonych przez użytkownika
-        snapshot = await FirebaseFirestore.instance
-            .collection('tasks')
-            .where('userId', isEqualTo: widget.user.uid)
-            .where('completed', isEqualTo: false)
-            .get();
-        print('Admin3');
-      } else {
-        // Domyślne pobranie zadań
-        snapshot = await FirebaseFirestore.instance
-            .collection('tasks')
-            .where('completed', isEqualTo: false)
-            .where('admin_accept', isEqualTo: true)
-            .orderBy('createdAt')
-            .get();
-        print('Admin4');
-      }
-
-      setState(() {
-        localData = snapshot.docs.map((doc) {
-          final data = doc.data() as Map<String, dynamic>;
-          data['id'] = doc.id;
-          return data;
-        }).toList();
-        isLoading = false;
-      });
-    } catch (e) {
-      print('Błąd podczas pobierania danych: $e');
-      setState(() {
-        isLoading = false;
-      });
     }
   }
 
   Future<void> updateAdminAccept(String taskId) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('tasks')
-          .doc(taskId)
-          .update({'admin_accept': true});
+      await _taskService.updateTask(taskId, {'admin_accept': true});
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Zadanie zostało zaakceptowane do wyświetlenia.'),
-          backgroundColor: Colors.green,
-        ),
+        const SnackBar(content: Text('Zadanie zostało zaakceptowane.')),
       );
-      // Odśwież dane po aktualizacji
       _fetchData();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Błąd podczas aktualizacji zadania: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Błąd podczas aktualizacji zadania: $e')),
       );
     }
   }
@@ -166,7 +120,6 @@ class TaskListViewState extends State<TaskListView> {
       return true;
     }).toList();
 
-    // Sortowanie danych
     filteredData.sort((a, b) {
       int comparison = 0;
       if (_sortField == 'Nazwa') {
@@ -187,6 +140,7 @@ class TaskListViewState extends State<TaskListView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Pole wyszukiwania
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
@@ -202,58 +156,68 @@ class TaskListViewState extends State<TaskListView> {
             },
           ),
         ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            DropdownButton<String>(
-              value: _sortField,
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _sortField = value;
-                  });
-                }
-              },
-              items: <String>['Nazwa', 'Cena', 'Czas']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text('Sortuj wg $value'),
-                );
-              }).toList(),
-            ),
-            IconButton(
-              icon: Icon(
-                _isAscending ? Icons.arrow_upward : Icons.arrow_downward,
+        // Sortowanie i wybór kategorii
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Sortowanie
+              Row(
+                children: [
+                  DropdownButton<String>(
+                    value: _sortField,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          _sortField = value;
+                        });
+                      }
+                    },
+                    items: <String>['Nazwa', 'Cena', 'Czas']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text('Sortuj wg $value'),
+                      );
+                    }).toList(),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      _isAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _isAscending = !_isAscending;
+                      });
+                    },
+                  ),
+                ],
               ),
-              onPressed: () {
-                setState(() {
-                  _isAscending = !_isAscending;
-                });
-              },
-            ),
-            DropdownButton<String>(
-              value: _category,
-              onChanged: (value) {
-                if (value != null) {
-                  setState(() {
-                    _category = value;
-                  });
-                }
-              },
-              items: <String>[
-                'Wszystkie',
-                'korepetycje',
-                'remont',
-                'prace przydomowe',
-              ].map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(' $value'),
-                );
-              }).toList(),
-            ),
-          ],
+              // Wybór kategorii
+              DropdownButton<String>(
+                value: _category,
+                onChanged: (value) {
+                  if (value != null) {
+                    setState(() {
+                      _category = value;
+                    });
+                  }
+                },
+                items: <String>[
+                  'Wszystkie',
+                  'korepetycje',
+                  'remont',
+                  'prace przydomowe',
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
         ),
         Expanded(
           child: isLoading
@@ -261,7 +225,6 @@ class TaskListViewState extends State<TaskListView> {
               : localData.isEmpty
                   ? const Center(child: Text('Brak zadań do wyświetlenia.'))
                   : ListView.builder(
-                      padding: const EdgeInsets.all(16.0),
                       itemCount: _applyFiltersAndSorting().length,
                       itemBuilder: (context, index) {
                         final task = _applyFiltersAndSorting()[index];
@@ -272,9 +235,8 @@ class TaskListViewState extends State<TaskListView> {
                           price: (task['Cena'] ?? 0).toString(),
                           imageUrl: task['zdjecie'] ?? '',
                           isAdmin: accountType == 'Administrator',
-                          isAdminAccepted: task['admin_accept'] is bool
-                              ? task['admin_accept']
-                              : false,
+                          isAdminAccepted:
+                              task['admin_accept'] as bool? ?? false,
                           onDelete: () => _deleteTask(task['id']),
                           onAdminAccept: () => updateAdminAccept(task['id']),
                         );
