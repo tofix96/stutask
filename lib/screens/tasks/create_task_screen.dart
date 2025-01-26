@@ -15,6 +15,7 @@ class CreateTaskScreenState extends State<CreateTaskScreen> {
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
   final _timeController = TextEditingController();
+  String? _selectedCity;
   final TaskService _taskService = TaskService();
   File? _imageFile;
   String? _creatorName;
@@ -119,6 +120,30 @@ class CreateTaskScreenState extends State<CreateTaskScreen> {
                 ),
                 const SizedBox(height: 10),
                 DropdownButtonFormField<String>(
+                  value: _selectedCity,
+                  hint: const Text('Wybierz miasto'),
+                  items: [
+                    'Warszawa',
+                    'Kraków',
+                    'Gdańsk',
+                    'Wrocław',
+                    'Poznań',
+                    'Rzeszów',
+                  ]
+                      .map((city) => DropdownMenuItem(
+                            value: city,
+                            child: Text(city),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedCity = value;
+                    });
+                  },
+                  validator: (value) => value == null ? 'Wybierz miasto' : null,
+                ),
+                const SizedBox(height: 10),
+                DropdownButtonFormField<String>(
                   value: _selectedCategory,
                   hint: const Text('Wybierz kategorię'),
                   items: [
@@ -156,6 +181,7 @@ class CreateTaskScreenState extends State<CreateTaskScreen> {
                     descriptionController: _descriptionController,
                     priceController: _priceController,
                     timeController: _timeController,
+                    cityController: TextEditingController(text: _selectedCity),
                     selectedCategory: _selectedCategory,
                     creatorName: _creatorName,
                     imageFile: _imageFile,

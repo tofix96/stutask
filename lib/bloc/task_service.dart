@@ -68,6 +68,7 @@ class TaskService {
           'userId': task.creatorId,
           'completed': task.completed,
           'assignedUserId': task.assignedUserId,
+          'Miasto': task.city, // Dodane pole `Miasto`
         };
       }).toList();
     } catch (e) {
@@ -102,7 +103,6 @@ class TaskService {
     return null;
   }
 
-  // Funkcja do wybierania zdjęcia z galerii
   Future<File?> pickImage() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
@@ -112,7 +112,6 @@ class TaskService {
     return null;
   }
 
-  // Przesyłanie zdjęcia do Firebase Storage
   Future<String?> uploadImage(File imageFile) async {
     final ref =
         _storage.ref().child('task_images/${DateTime.now().toString()}');
@@ -186,6 +185,7 @@ class TaskService {
         'completed': task.completed,
         'createdAt': Timestamp.now(),
         'admin_accept': false,
+        'Miasto': task.city,
       });
     } catch (e) {
       throw Exception('Błąd podczas dodawania zadania: $e');
@@ -219,6 +219,7 @@ class TaskService {
     required TextEditingController descriptionController,
     required TextEditingController priceController,
     required TextEditingController timeController,
+    required TextEditingController cityController,
     String? selectedCategory,
     String? creatorName,
     File? imageFile,
@@ -227,7 +228,6 @@ class TaskService {
     if (formKey.currentState!.validate()) {
       String? imageUrl;
 
-      // Upload image if provided
       if (imageFile != null) {
         imageUrl = await uploadImage(imageFile);
       }
@@ -246,10 +246,10 @@ class TaskService {
         creatorId: user?.uid ?? '',
         completed: false,
         assignedUserId: null,
+        city: cityController.text,
       );
 
       try {
-        // Zapis do Firestore przez serwis
         await addTask(task);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Zadanie zostało utworzone')),

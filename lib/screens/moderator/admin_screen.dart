@@ -73,8 +73,7 @@ class AdminPageState extends State<AdminPage> {
             ),
             onPressed: () {
               FirebaseAuth.instance.signOut();
-              Provider.of<custom_auth.AuthProvider>(context, listen: false)
-                  .setToken(null);
+              Provider.of<custom_auth.AuthProvider>(context, listen: false);
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => const LoginPage()),
               );

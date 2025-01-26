@@ -107,6 +107,7 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                               DetailRow(
                                   label: 'Kategoria:', value: task.category),
                               DetailRow(label: 'Czas:', value: task.time),
+                              DetailRow(label: 'Miasto:', value: task.city),
                             ],
                           ),
                         ),

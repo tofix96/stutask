@@ -3,14 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthProvider with ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  String? _token;
-
-  String? get token => _token;
-
-  void setToken(String? token) {
-    _token = token;
-    notifyListeners();
-  }
 
   Future<void> registerUser(
       BuildContext context, String email, String password) async {
@@ -78,8 +70,8 @@ class AuthProvider with ChangeNotifier {
           );
         }
 
-        String? token = await user.getIdToken();
-        setToken(token);
+        // String? token = await user.getIdToken();
+        // setToken(token);
         return user;
       } else {
         throw FirebaseAuthException(

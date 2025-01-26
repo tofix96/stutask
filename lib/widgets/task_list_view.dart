@@ -28,11 +28,12 @@ class TaskListViewState extends State<TaskListView> {
 
   String _sortField = 'Nazwa';
   bool _isAscending = true;
-  String _category = 'Wszystkie';
+  String? _category;
   String _searchQuery = '';
   List<Map<String, dynamic>> localData = [];
   bool isLoading = true;
   String? accountType = 'NULL';
+  String? _selectedCity;
 
   @override
   void initState() {
@@ -109,7 +110,15 @@ class TaskListViewState extends State<TaskListView> {
 
   List<Map<String, dynamic>> _applyFiltersAndSorting() {
     List<Map<String, dynamic>> filteredData = localData.where((task) {
-      if (_category != 'Wszystkie' && task['Kategoria'] != _category) {
+      if (_category != null &&
+          _category != 'Wszystkie' &&
+          task['Kategoria'] != _category) {
+        return false;
+      }
+
+      if (_selectedCity != null &&
+          _selectedCity!.isNotEmpty &&
+          task['Miasto'] != _selectedCity) {
         return false;
       }
       if (_searchQuery.isNotEmpty) {
@@ -117,9 +126,11 @@ class TaskListViewState extends State<TaskListView> {
         return (task['Nazwa'] ?? '').toLowerCase().contains(query) ||
             (task['Opis'] ?? '').toLowerCase().contains(query);
       }
+
       return true;
     }).toList();
 
+    // Sortowanie
     filteredData.sort((a, b) {
       int comparison = 0;
       if (_sortField == 'Nazwa') {
@@ -136,6 +147,7 @@ class TaskListViewState extends State<TaskListView> {
     return filteredData;
   }
 
+  @override
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -160,49 +172,107 @@ class TaskListViewState extends State<TaskListView> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment:
+                MainAxisAlignment.center, // Wyśrodkowanie elementów
             children: [
+              // Wybór miasta
+              DropdownButton<String>(
+                value: _selectedCity,
+                hint: const Text('Miasto'),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedCity = value;
+                  });
+                },
+                items: <String>[
+                  'Warszawa',
+                  'Kraków',
+                  'Gdańsk',
+                  'Wrocław',
+                  'Poznań',
+                  'Rzeszów',
+                ].map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+
+              const SizedBox(width: 16), // Odstęp między miastem a sortowaniem
+
               // Sortowanie
-              Row(
-                children: [
-                  DropdownButton<String>(
-                    value: _sortField,
-                    onChanged: (value) {
-                      if (value != null) {
-                        setState(() {
-                          _sortField = value;
-                        });
-                      }
-                    },
-                    items: <String>['Nazwa', 'Cena', 'Czas']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text('Sortuj wg $value'),
-                      );
-                    }).toList(),
+              PopupMenuButton<String>(
+                icon: Icon(Icons.unfold_more),
+                onSelected: (value) {
+                  setState(() {
+                    switch (value) {
+                      case 'Nazwa A-Z':
+                        _sortField = 'Nazwa';
+                        _isAscending = true;
+                        break;
+                      case 'Nazwa Z-A':
+                        _sortField = 'Nazwa';
+                        _isAscending = false;
+                        break;
+                      case 'Najdroższe':
+                        _sortField = 'Cena';
+                        _isAscending = false;
+                        break;
+                      case 'Najtańsze':
+                        _sortField = 'Cena';
+                        _isAscending = true;
+                        break;
+                      case 'Najszybciej':
+                        _sortField = 'Czas';
+                        _isAscending = true;
+                        break;
+                      case 'Najpóźniej':
+                        _sortField = 'Czas';
+                        _isAscending = false;
+                        break;
+                    }
+                  });
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'Nazwa A-Z',
+                    child: Text('Nazwa A-Z'),
                   ),
-                  IconButton(
-                    icon: Icon(
-                      _isAscending ? Icons.arrow_upward : Icons.arrow_downward,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _isAscending = !_isAscending;
-                      });
-                    },
+                  PopupMenuItem(
+                    value: 'Nazwa Z-A',
+                    child: Text('Nazwa Z-A'),
+                  ),
+                  PopupMenuItem(
+                    value: 'Najdroższe',
+                    child: Text('Najdroższe'),
+                  ),
+                  PopupMenuItem(
+                    value: 'Najtańsze',
+                    child: Text('Najtańsze'),
+                  ),
+                  PopupMenuItem(
+                    value: 'Najszybciej',
+                    child: Text('Najszybciej'),
+                  ),
+                  PopupMenuItem(
+                    value: 'Najpóźniej',
+                    child: Text('Najpóźniej'),
                   ),
                 ],
               ),
+
+              const SizedBox(
+                  width: 16), // Odstęp między sortowaniem a kategoriami
+
               // Wybór kategorii
               DropdownButton<String>(
                 value: _category,
+                hint: const Text('Kategorie'),
                 onChanged: (value) {
-                  if (value != null) {
-                    setState(() {
-                      _category = value;
-                    });
-                  }
+                  setState(() {
+                    _category = value ?? 'Wszystkie';
+                  });
                 },
                 items: <String>[
                   'Wszystkie',
@@ -219,6 +289,7 @@ class TaskListViewState extends State<TaskListView> {
             ],
           ),
         ),
+
         Expanded(
           child: isLoading
               ? const Center(child: CircularProgressIndicator())

@@ -125,8 +125,8 @@ class _HomePageState extends State<HomePage> {
             ),
             onPressed: () {
               FirebaseAuth.instance.signOut();
-              Provider.of<custom_auth.AuthProvider>(context, listen: false)
-                  .setToken(null);
+              Provider.of<custom_auth.AuthProvider>(context, listen: false);
+              // .setToken(null);
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (_) => const LoginPage()),
               );

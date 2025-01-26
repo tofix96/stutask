@@ -43,7 +43,7 @@ class UserInfoScreenState extends State<UserInfoScreen> {
               children: [
                 const SizedBox(height: 20),
                 const Text(
-                  'Uzpełnij szczegóły o sobie',
+                  'Uzupełnij szczegóły o sobie',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 28,
@@ -63,10 +63,11 @@ class UserInfoScreenState extends State<UserInfoScreen> {
                   controller: _bioController,
                   style: const TextStyle(color: Colors.white),
                   decoration: InputDecoration(
-                    labelText: 'Bio',
+                    labelText: 'Opowiedz nam coś o sobie',
                     labelStyle: const TextStyle(color: Colors.white),
                     filled: true,
                     fillColor: Colors.white.withOpacity(0.2),
+                    hintMaxLines: 3,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(20),
                       borderSide: BorderSide.none,
@@ -95,7 +96,7 @@ class UserInfoScreenState extends State<UserInfoScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Podaj imie';
+                      return 'Podaj imię';
                     }
                     return null;
                   },
