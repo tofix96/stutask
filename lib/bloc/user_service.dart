@@ -65,6 +65,76 @@ class UserService {
     }
   }
 
+  Stream<List<DocumentSnapshot>> getChatStream() {
+    final User? user = _auth.currentUser;
+
+    if (user == null) {
+      return Stream.value([]);
+    }
+
+    final employerChats = _firestore
+        .collection('chats')
+        .where('employerId', isEqualTo: user.uid)
+        .snapshots();
+
+    final workerChatsFuture = _firestore
+        .collection('chats')
+        .where('workerId', isEqualTo: user.uid)
+        .get();
+
+    return employerChats.asyncMap((employerSnapshot) async {
+      final workerChats = await workerChatsFuture;
+      // ignore: prefer_collection_literals
+      final allChats = [
+        ...employerSnapshot.docs,
+        ...workerChats.docs,
+      ].toSet();
+
+      return allChats.toList();
+    });
+  }
+
+  Future<Map<String, dynamic>?> getChatDetails(DocumentSnapshot chat) async {
+    final chatData = chat.data() as Map<String, dynamic>;
+    final taskId = chatData['taskId'];
+    final workerId = chatData['workerId'];
+    final employerId = chatData['employerId'];
+
+    final User? user = _auth.currentUser;
+    if (user == null) return null;
+
+    final isEmployer = user.uid == employerId;
+
+    // Pobieranie danych zadania
+    final taskSnapshot = await _firestore.collection('tasks').doc(taskId).get();
+
+    if (!taskSnapshot.exists) {
+      return null;
+    }
+
+    final taskData = taskSnapshot.data() as Map<String, dynamic>;
+    final taskName = taskData['Nazwa'];
+
+    // Pobieranie danych użytkownika
+    final userSnapshot = await _firestore
+        .collection('D_Users')
+        .doc(isEmployer ? workerId : employerId)
+        .get();
+
+    if (!userSnapshot.exists) {
+      return null;
+    }
+
+    final userData = userSnapshot.data() as Map<String, dynamic>;
+    final userName = '${userData['Imię']} ${userData['Nazwisko']}';
+
+    return {
+      'taskName': taskName,
+      'userName': userName,
+      'taskId': taskId,
+    };
+  }
+
   Future<void> saveUserInfo({
     required String bio,
     required String firstName,

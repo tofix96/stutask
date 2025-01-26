@@ -9,7 +9,7 @@ class Task {
   final String creatorId;
   final bool completed;
   final String? assignedUserId;
-  final String city; // Dodane nowe pole
+  final String city;
 
   Task({
     required this.id,
@@ -22,7 +22,7 @@ class Task {
     required this.creatorId,
     required this.completed,
     this.assignedUserId,
-    required this.city, // Nowe pole
+    required this.city,
   });
 
   factory Task.fromFirestore(String id, Map<String, dynamic> data) {

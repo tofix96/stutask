@@ -53,7 +53,6 @@ class AuthProvider with ChangeNotifier {
 
   Future<User?> loginUser(String email, String password) async {
     try {
-      // Logowanie użytkownika
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
         email: email.trim(),
         password: password.trim(),
@@ -69,9 +68,6 @@ class AuthProvider with ChangeNotifier {
             message: 'E-mail nie został zweryfikowany.',
           );
         }
-
-        // String? token = await user.getIdToken();
-        // setToken(token);
         return user;
       } else {
         throw FirebaseAuthException(
