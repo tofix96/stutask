@@ -104,8 +104,6 @@ class UserService {
     if (user == null) return null;
 
     final isEmployer = user.uid == employerId;
-
-    // Pobieranie danych zadania
     final taskSnapshot = await _firestore.collection('tasks').doc(taskId).get();
 
     if (!taskSnapshot.exists) {
@@ -114,8 +112,6 @@ class UserService {
 
     final taskData = taskSnapshot.data() as Map<String, dynamic>;
     final taskName = taskData['Nazwa'];
-
-    // Pobieranie danych użytkownika
     final userSnapshot = await _firestore
         .collection('D_Users')
         .doc(isEmployer ? workerId : employerId)

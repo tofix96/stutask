@@ -68,7 +68,7 @@ class TaskService {
           'userId': task.creatorId,
           'completed': task.completed,
           'assignedUserId': task.assignedUserId,
-          'Miasto': task.city, // Dodane pole `Miasto`
+          'Miasto': task.city,
         };
       }).toList();
     } catch (e) {
@@ -92,7 +92,6 @@ class TaskService {
     }
   }
 
-  // Pobranie imienia użytkownika z Firestore
   Future<String?> getUserName() async {
     final user = _auth.currentUser;
     if (user != null) {
@@ -151,7 +150,9 @@ class TaskService {
       String taskId, String userId, String employerId) async {
     final chatRef =
         FirebaseFirestore.instance.collection('chats').doc('$taskId-$userId');
-
+    print(taskId);
+    print(userId);
+    print(employerId);
     final chatSnapshot = await chatRef.get();
 
     if (!chatSnapshot.exists) {
@@ -162,6 +163,7 @@ class TaskService {
         'createdAt': Timestamp.now(),
       });
     }
+
     _screenController.navigateToChatScreen(
         navigatorKey.currentState!.context, chatRef.id, taskId);
   }

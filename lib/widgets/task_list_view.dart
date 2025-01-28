@@ -130,7 +130,6 @@ class TaskListViewState extends State<TaskListView> {
       return true;
     }).toList();
 
-    // Sortowanie
     filteredData.sort((a, b) {
       int comparison = 0;
       if (_sortField == 'Nazwa') {
@@ -152,7 +151,6 @@ class TaskListViewState extends State<TaskListView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Pole wyszukiwania
         Padding(
           padding: const EdgeInsets.all(8.0),
           child: TextField(
@@ -168,14 +166,11 @@ class TaskListViewState extends State<TaskListView> {
             },
           ),
         ),
-        // Sortowanie i wybór kategorii
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Row(
-            mainAxisAlignment:
-                MainAxisAlignment.center, // Wyśrodkowanie elementów
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Wybór miasta
               DropdownButton<String>(
                 value: _selectedCity,
                 hint: const Text('Miasto'),
@@ -198,10 +193,7 @@ class TaskListViewState extends State<TaskListView> {
                   );
                 }).toList(),
               ),
-
-              const SizedBox(width: 16), // Odstęp między miastem a sortowaniem
-
-              // Sortowanie
+              const SizedBox(width: 16),
               PopupMenuButton<String>(
                 icon: Icon(Icons.unfold_more),
                 onSelected: (value) {
@@ -261,11 +253,7 @@ class TaskListViewState extends State<TaskListView> {
                   ),
                 ],
               ),
-
-              const SizedBox(
-                  width: 16), // Odstęp między sortowaniem a kategoriami
-
-              // Wybór kategorii
+              const SizedBox(width: 16),
               DropdownButton<String>(
                 value: _category,
                 hint: const Text('Kategorie'),
@@ -289,7 +277,6 @@ class TaskListViewState extends State<TaskListView> {
             ],
           ),
         ),
-
         Expanded(
           child: isLoading
               ? const Center(child: CircularProgressIndicator())

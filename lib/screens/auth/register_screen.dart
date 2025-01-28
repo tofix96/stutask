@@ -91,7 +91,6 @@ class RegisterPageState extends State<RegisterPage> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 50),
-              // Pole e-mail
               TextFormField(
                 controller: _emailController,
                 style: const TextStyle(color: Colors.white),

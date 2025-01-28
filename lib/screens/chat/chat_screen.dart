@@ -63,7 +63,6 @@ class ChatScreenState extends State<ChatScreen> {
       appBar: GradientAppBar(title: 'Chat'),
       body: Column(
         children: [
-          // Sekcja szczegółów zadania
           if (_taskDetails != null)
             Container(
               margin: const EdgeInsets.all(8.0),
@@ -81,7 +80,6 @@ class ChatScreenState extends State<ChatScreen> {
               ),
               child: Row(
                 children: [
-                  // Zdjęcie zadania
                   if (_taskDetails!.imageUrl != null)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
@@ -100,7 +98,6 @@ class ChatScreenState extends State<ChatScreen> {
                       child: const Icon(Icons.image_not_supported),
                     ),
                   const SizedBox(width: 12.0),
-                  // Nazwa i kwota zadania
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +128,6 @@ class ChatScreenState extends State<ChatScreen> {
               padding: EdgeInsets.all(8.0),
               child: Center(child: CircularProgressIndicator()),
             ),
-          // Wyświetlanie wiadomości
           Expanded(
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
@@ -183,7 +179,6 @@ class ChatScreenState extends State<ChatScreen> {
               },
             ),
           ),
-          // Pole do wpisywania wiadomości i przycisk wysyłania
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
