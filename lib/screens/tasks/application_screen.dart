@@ -1,6 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stutask/bloc/task_service.dart';
 import 'package:stutask/bloc/user_service.dart';
@@ -21,11 +21,7 @@ class ApplicationsScreen extends StatelessWidget {
     return Scaffold(
       appBar: GradientAppBar(title: 'Lista aplikujących'),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('tasks')
-            .doc(taskId)
-            .collection('applications')
-            .snapshots(),
+        stream: taskService.getApplicationsStream(taskId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

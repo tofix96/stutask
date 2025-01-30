@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:stutask/bloc/user_service.dart';
 
 class AdminReviewsScreen extends StatefulWidget {
   const AdminReviewsScreen({super.key});
@@ -14,43 +14,12 @@ class AdminReviewsScreenState extends State<AdminReviewsScreen> {
   @override
   void initState() {
     super.initState();
-    _reviews = _fetchReviews();
-  }
-
-  Future<List<Map<String, dynamic>>> _fetchReviews() async {
-    try {
-      final userSnapshots =
-          await FirebaseFirestore.instance.collection('D_Users').get();
-      final reviews = <Map<String, dynamic>>[];
-
-      for (var userDoc in userSnapshots.docs) {
-        final reviewsSnapshot = await FirebaseFirestore.instance
-            .collection('D_Users')
-            .doc(userDoc.id)
-            .collection('reviews')
-            .orderBy('timestamp')
-            .get();
-
-        for (var reviewDoc in reviewsSnapshot.docs) {
-          reviews.add(
-              {'id': reviewDoc.id, 'userId': userDoc.id, ...reviewDoc.data()});
-        }
-      }
-
-      return reviews;
-    } catch (e) {
-      throw Exception('Błąd podczas pobierania opinii: $e');
-    }
+    _reviews = UserService.fetchReviews();
   }
 
   Future<void> _deleteReview(String userId, String reviewId) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('D_Users')
-          .doc(userId)
-          .collection('reviews')
-          .doc(reviewId)
-          .delete();
+      await UserService.deleteReview(userId, reviewId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Opinia została usunięta.'),
@@ -58,7 +27,7 @@ class AdminReviewsScreenState extends State<AdminReviewsScreen> {
         ),
       );
       setState(() {
-        _reviews = _fetchReviews();
+        _reviews = UserService.fetchReviews();
       });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

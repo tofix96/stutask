@@ -294,7 +294,7 @@ class TaskListViewState extends State<TaskListView> {
                           imageUrl: task['zdjecie'] ?? '',
                           isAdmin: accountType == 'Administrator',
                           isAdminAccepted:
-                              task['admin_accept'] as bool? ?? false,
+                              task['admin_accept'] as bool? ?? true,
                           onDelete: () => _deleteTask(task['id']),
                           onAdminAccept: () => updateAdminAccept(task['id']),
                         );

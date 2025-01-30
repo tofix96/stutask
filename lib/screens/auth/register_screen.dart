@@ -118,7 +118,6 @@ class RegisterPageState extends State<RegisterPage> {
                 },
               ),
               const SizedBox(height: 20),
-              // Pole hasło
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,

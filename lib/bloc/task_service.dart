@@ -118,12 +118,6 @@ class TaskService {
     return await ref.getDownloadURL();
   }
 
-  Future<void> assignUserToTask(String taskId, String userId) async {
-    await _firestore.collection('tasks').doc(taskId).update({
-      'assignedUserId': userId,
-    });
-  }
-
   Future<bool> hasUserApplied(String taskId, String userId) async {
     final querySnapshot = await _firestore
         .collection('tasks')
@@ -191,6 +185,24 @@ class TaskService {
       });
     } catch (e) {
       throw Exception('Błąd podczas dodawania zadania: $e');
+    }
+  }
+
+  Stream<QuerySnapshot> getApplicationsStream(String taskId) {
+    return _firestore
+        .collection('tasks')
+        .doc(taskId)
+        .collection('applications')
+        .snapshots();
+  }
+
+  Future<void> assignUserToTask(String taskId, String userId) async {
+    try {
+      await _firestore.collection('tasks').doc(taskId).update({
+        'assignedUserId': userId,
+      });
+    } catch (e) {
+      throw Exception('Błąd podczas przypisywania użytkownika do zadania: $e');
     }
   }
 

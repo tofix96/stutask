@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:stutask/bloc/screen_controller.dart';
 import 'package:stutask/widgets/widget_style.dart';
-import 'package:stutask/models/task.dart'; // Upewnij się, że model `Task` jest zaimportowany
+import 'package:stutask/models/task.dart';
 import 'package:stutask/bloc/task_service.dart';
 
 class ChatScreen extends StatefulWidget {

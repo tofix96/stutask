@@ -94,6 +94,45 @@ class UserService {
     });
   }
 
+  static Future<List<Map<String, dynamic>>> fetchReviews() async {
+    try {
+      final userSnapshots =
+          await FirebaseFirestore.instance.collection('D_Users').get();
+      final reviews = <Map<String, dynamic>>[];
+
+      for (var userDoc in userSnapshots.docs) {
+        final reviewsSnapshot = await FirebaseFirestore.instance
+            .collection('D_Users')
+            .doc(userDoc.id)
+            .collection('reviews')
+            .orderBy('timestamp')
+            .get();
+
+        for (var reviewDoc in reviewsSnapshot.docs) {
+          reviews.add(
+              {'id': reviewDoc.id, 'userId': userDoc.id, ...reviewDoc.data()});
+        }
+      }
+
+      return reviews;
+    } catch (e) {
+      throw Exception('Błąd podczas pobierania opinii: $e');
+    }
+  }
+
+  static Future<void> deleteReview(String userId, String reviewId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('D_Users')
+          .doc(userId)
+          .collection('reviews')
+          .doc(reviewId)
+          .delete();
+    } catch (e) {
+      throw Exception('Błąd podczas usuwania opinii: $e');
+    }
+  }
+
   Future<Map<String, dynamic>?> getChatDetails(DocumentSnapshot chat) async {
     final chatData = chat.data() as Map<String, dynamic>;
     final taskId = chatData['taskId'];
