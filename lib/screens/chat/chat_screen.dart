@@ -29,34 +29,6 @@ class ChatScreenState extends State<ChatScreen> {
     _loadTaskDetails();
   }
 
-  Future<void> _loadTaskDetails() async {
-    try {
-      final task = await TaskService().getTaskDetails(widget.taskId);
-      setState(() {
-        _taskDetails = task;
-      });
-    } catch (e) {
-      print('Błąd podczas ładowania szczegółów zadania: $e');
-    }
-  }
-
-  void _sendMessage() async {
-    if (_messageController.text.trim().isEmpty) return;
-
-    final message = _messageController.text.trim();
-    _messageController.clear();
-
-    await FirebaseFirestore.instance
-        .collection('chats')
-        .doc(widget.chatId)
-        .collection('messages')
-        .add({
-      'text': message,
-      'senderId': _currentUser?.uid,
-      'createdAt': Timestamp.now(),
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -202,5 +174,33 @@ class ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _loadTaskDetails() async {
+    try {
+      final task = await TaskService().getTaskDetails(widget.taskId);
+      setState(() {
+        _taskDetails = task;
+      });
+    } catch (e) {
+      print('Błąd podczas ładowania szczegółów zadania: $e');
+    }
+  }
+
+  void _sendMessage() async {
+    if (_messageController.text.trim().isEmpty) return;
+
+    final message = _messageController.text.trim();
+    _messageController.clear();
+
+    await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(widget.chatId)
+        .collection('messages')
+        .add({
+      'text': message,
+      'senderId': _currentUser?.uid,
+      'createdAt': Timestamp.now(),
+    });
   }
 }

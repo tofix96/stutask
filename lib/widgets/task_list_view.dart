@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:stutask/widgets/task_tile.dart';
 import 'package:stutask/bloc/user_service.dart';
 import 'package:stutask/bloc/task_service.dart';
@@ -23,8 +24,8 @@ class TaskListView extends StatefulWidget {
 }
 
 class TaskListViewState extends State<TaskListView> {
-  final TaskService _taskService = TaskService();
-  final UserService _userService = UserService();
+  late TaskService _taskService;
+  late UserService _userService;
 
   String _sortField = 'Nazwa';
   bool _isAscending = true;
@@ -41,112 +42,18 @@ class TaskListViewState extends State<TaskListView> {
     _initializeData();
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _taskService = Provider.of<TaskService>(context, listen: false);
+    _userService = Provider.of<UserService>(context, listen: false);
+  }
+
   Future<void> _initializeData() async {
     await _fetchAccountType();
     _fetchData();
   }
 
-  Future<void> _fetchAccountType() async {
-    final userId = widget.user.uid;
-    final type = await _userService.getAccountType(userId);
-    setState(() {
-      accountType = type ?? 'Nieznany';
-    });
-  }
-
-  Future<void> _fetchData() async {
-    setState(() => isLoading = true);
-
-    try {
-      final data = await _taskService.fetchTasks(
-        accountType: accountType!,
-        userId: widget.user.uid,
-        filterByAssignedTasks: widget.filterByAssignedTasks,
-        filterByCreatedTasks: widget.filterByCreatedTasks,
-      );
-
-      setState(() {
-        localData = data;
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() => isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Błąd podczas pobierania zadań: $e')),
-      );
-    }
-  }
-
-  Future<void> _deleteTask(String taskId) async {
-    try {
-      await _taskService.deleteTask(taskId);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Zadanie zostało usunięte.'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      _fetchData();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Błąd podczas usuwania zadania: $e')),
-      );
-    }
-  }
-
-  Future<void> updateAdminAccept(String taskId) async {
-    try {
-      await _taskService.updateTask(taskId, {'admin_accept': true});
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Zadanie zostało zaakceptowane.')),
-      );
-      _fetchData();
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Błąd podczas aktualizacji zadania: $e')),
-      );
-    }
-  }
-
-  List<Map<String, dynamic>> _applyFiltersAndSorting() {
-    List<Map<String, dynamic>> filteredData = localData.where((task) {
-      if (_category != null &&
-          _category != 'Wszystkie' &&
-          task['Kategoria'] != _category) {
-        return false;
-      }
-
-      if (_selectedCity != null &&
-          _selectedCity!.isNotEmpty &&
-          task['Miasto'] != _selectedCity) {
-        return false;
-      }
-      if (_searchQuery.isNotEmpty) {
-        final query = _searchQuery.toLowerCase();
-        return (task['Nazwa'] ?? '').toLowerCase().contains(query) ||
-            (task['Opis'] ?? '').toLowerCase().contains(query);
-      }
-
-      return true;
-    }).toList();
-
-    filteredData.sort((a, b) {
-      int comparison = 0;
-      if (_sortField == 'Nazwa') {
-        comparison = a['Nazwa'].compareTo(b['Nazwa']);
-      } else if (_sortField == 'Cena') {
-        comparison = (a['Cena'] as num).compareTo(b['Cena'] as num);
-      } else if (_sortField == 'Czas') {
-        comparison = a['Czas'].compareTo(b['Czas']);
-      }
-
-      return _isAscending ? comparison : -comparison;
-    });
-
-    return filteredData;
-  }
-
-  @override
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -303,5 +210,105 @@ class TaskListViewState extends State<TaskListView> {
         ),
       ],
     );
+  }
+
+  Future<void> _fetchAccountType() async {
+    final userId = widget.user.uid;
+    final type = await _userService.getAccountType(userId);
+    setState(() {
+      accountType = type ?? 'Nieznany';
+    });
+  }
+
+  Future<void> _fetchData() async {
+    setState(() => isLoading = true);
+
+    try {
+      final data = await _taskService.fetchTasks(
+        accountType: accountType!,
+        userId: widget.user.uid,
+        filterByAssignedTasks: widget.filterByAssignedTasks,
+        filterByCreatedTasks: widget.filterByCreatedTasks,
+      );
+
+      setState(() {
+        localData = data;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() => isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Błąd podczas pobierania zadań: $e')),
+      );
+    }
+  }
+
+  Future<void> _deleteTask(String taskId) async {
+    try {
+      await _taskService.deleteTask(taskId);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Zadanie zostało usunięte.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      _fetchData();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Błąd podczas usuwania zadania: $e')),
+      );
+    }
+  }
+
+  Future<void> updateAdminAccept(String taskId) async {
+    try {
+      await _taskService.updateTask(taskId, {'admin_accept': true});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Zadanie zostało zaakceptowane.')),
+      );
+      _fetchData();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Błąd podczas aktualizacji zadania: $e')),
+      );
+    }
+  }
+
+  List<Map<String, dynamic>> _applyFiltersAndSorting() {
+    List<Map<String, dynamic>> filteredData = localData.where((task) {
+      if (_category != null &&
+          _category != 'Wszystkie' &&
+          task['Kategoria'] != _category) {
+        return false;
+      }
+
+      if (_selectedCity != null &&
+          _selectedCity!.isNotEmpty &&
+          task['Miasto'] != _selectedCity) {
+        return false;
+      }
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        return (task['Nazwa'] ?? '').toLowerCase().contains(query) ||
+            (task['Opis'] ?? '').toLowerCase().contains(query);
+      }
+
+      return true;
+    }).toList();
+
+    filteredData.sort((a, b) {
+      int comparison = 0;
+      if (_sortField == 'Nazwa') {
+        comparison = a['Nazwa'].compareTo(b['Nazwa']);
+      } else if (_sortField == 'Cena') {
+        comparison = (a['Cena'] as num).compareTo(b['Cena'] as num);
+      } else if (_sortField == 'Czas') {
+        comparison = a['Czas'].compareTo(b['Czas']);
+      }
+
+      return _isAscending ? comparison : -comparison;
+    });
+
+    return filteredData;
   }
 }

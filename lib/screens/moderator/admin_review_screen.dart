@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:stutask/bloc/user_service.dart';
 
 class AdminReviewsScreen extends StatefulWidget {
@@ -14,21 +15,27 @@ class AdminReviewsScreenState extends State<AdminReviewsScreen> {
   @override
   void initState() {
     super.initState();
-    _reviews = UserService.fetchReviews();
+    _fetchReviews();
+  }
+
+  void _fetchReviews() {
+    final userService = Provider.of<UserService>(context, listen: false);
+    setState(() {
+      _reviews = userService.fetchReviews();
+    });
   }
 
   Future<void> _deleteReview(String userId, String reviewId) async {
     try {
-      await UserService.deleteReview(userId, reviewId);
+      final userService = Provider.of<UserService>(context, listen: false);
+      await userService.deleteReview(userId, reviewId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Opinia została usunięta.'),
           backgroundColor: Colors.green,
         ),
       );
-      setState(() {
-        _reviews = UserService.fetchReviews();
-      });
+      _fetchReviews(); // Odświeżanie listy po usunięciu opinii
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

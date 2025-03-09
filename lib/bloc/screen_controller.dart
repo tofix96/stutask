@@ -25,8 +25,7 @@ class ScreenController {
             .get();
 
         if (userData.exists) {
-          final userType =
-              userData.data()?['Typ_konta']; // Pobranie wartości Typ_konta
+          final userType = userData.data()?['Typ_konta'];
 
           if (userType == 'Administrator') {
             Navigator.pushReplacementNamed(

@@ -19,18 +19,6 @@ class UserInfoScreenState extends State<UserInfoScreen> {
   final _ageController = TextEditingController();
   final UserService _userService = UserService();
 
-  Future<void> _saveUserInfo() async {
-    await _userService.saveUserInfo(
-      bio: _bioController.text,
-      firstName: _firstNameController.text,
-      lastName: _lastNameController.text,
-      accountType: _accountTypeController.text,
-      age: _ageController.text,
-    );
-    Navigator.pushReplacementNamed(context, '/home',
-        arguments: FirebaseAuth.instance.currentUser);
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -220,5 +208,17 @@ class UserInfoScreenState extends State<UserInfoScreen> {
     _accountTypeController.dispose();
     _ageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _saveUserInfo() async {
+    await _userService.saveUserInfo(
+      bio: _bioController.text,
+      firstName: _firstNameController.text,
+      lastName: _lastNameController.text,
+      accountType: _accountTypeController.text,
+      age: _ageController.text,
+    );
+    Navigator.pushReplacementNamed(context, '/home',
+        arguments: FirebaseAuth.instance.currentUser);
   }
 }

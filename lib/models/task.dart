@@ -8,6 +8,7 @@ class Task {
   final String? imageUrl;
   final String creatorId;
   final bool completed;
+  final bool admin_accept;
   final String? assignedUserId;
   final String city;
 
@@ -19,6 +20,7 @@ class Task {
     required this.category,
     required this.time,
     this.imageUrl,
+    required this.admin_accept,
     required this.creatorId,
     required this.completed,
     this.assignedUserId,
@@ -36,8 +38,9 @@ class Task {
       imageUrl: data['zdjecie'],
       creatorId: data['userId'] ?? '',
       completed: data['completed'] ?? false,
+      admin_accept: data['admin_accept'],
       assignedUserId: data['assignedUserId'],
-      city: data['Miasto'] ?? 'Nieznane miasto', // Obsługa nowego pola
+      city: data['Miasto'] ?? 'Nieznane miasto',
     );
   }
 }

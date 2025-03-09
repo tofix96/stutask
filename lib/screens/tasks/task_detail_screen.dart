@@ -7,17 +7,19 @@ import 'package:stutask/models/user.dart';
 import 'package:stutask/widgets/detail_row.dart';
 import 'package:stutask/widgets/assigned_user_widget.dart';
 import 'package:stutask/widgets/widget_style.dart';
+import 'package:stutask/bloc/screen_controller.dart';
 
 class TaskDetailScreen extends StatefulWidget {
   const TaskDetailScreen({super.key});
 
   @override
-  _TaskDetailScreenState createState() => _TaskDetailScreenState();
+  TaskDetailScreenState createState() => TaskDetailScreenState();
 }
 
-class _TaskDetailScreenState extends State<TaskDetailScreen> {
+class TaskDetailScreenState extends State<TaskDetailScreen> {
   late Future<Task> taskDetails;
   late String taskId;
+  final ScreenController screenController = ScreenController();
 
   @override
   void didChangeDependencies() {
@@ -27,20 +29,6 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
     taskId = arguments['taskId'];
     final taskService = Provider.of<TaskService>(context, listen: false);
     taskDetails = taskService.getTaskDetails(taskId);
-  }
-
-  Future<void> _applyForTask(BuildContext context, String taskId) async {
-    final taskService = Provider.of<TaskService>(context, listen: false);
-
-    await taskService.applyForTask(taskId);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Zgłoszono aplikację do zadania.')),
-    );
-
-    setState(() {
-      final taskService = Provider.of<TaskService>(context, listen: false);
-      taskDetails = taskService.getTaskDetails(taskId);
-    });
   }
 
   @override
@@ -224,10 +212,8 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
                                 task.creatorId == currentUser.id)
                               ElevatedButton(
                                 onPressed: () {
-                                  Navigator.of(context).pushNamed(
-                                    '/applications',
-                                    arguments: {'taskId': taskId},
-                                  );
+                                  screenController.navigateToApplicationsScreen(
+                                      context, taskId);
                                 },
                                 child: const Text('Zobacz aplikacje'),
                               ),
@@ -242,5 +228,19 @@ class _TaskDetailScreenState extends State<TaskDetailScreen> {
         );
       },
     );
+  }
+
+  Future<void> _applyForTask(BuildContext context, String taskId) async {
+    final taskService = Provider.of<TaskService>(context, listen: false);
+
+    await taskService.applyForTask(taskId);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Zgłoszono aplikację do zadania.')),
+    );
+
+    setState(() {
+      final taskService = Provider.of<TaskService>(context, listen: false);
+      taskDetails = taskService.getTaskDetails(taskId);
+    });
   }
 }

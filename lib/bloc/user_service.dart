@@ -13,7 +13,19 @@ class UserService {
     if (user != null) {
       final userData =
           await _firestore.collection('D_Users').doc(user.uid).get();
-      return userData.data();
+
+      if (userData.exists && userData.data() != null) {
+        final userModel = UserModel.fromFirestore(userData.data()!, user.uid);
+
+        return {
+          'id': userModel.id,
+          'Imię': userModel.firstName,
+          'Nazwisko': userModel.lastName,
+          'Typ_konta': userModel.accountType,
+          'Bio': userModel.bio,
+          'Wiek': userModel.age,
+        };
+      }
     }
     return null;
   }
@@ -29,24 +41,24 @@ class UserService {
     if (user != null) {
       final userData =
           await _firestore.collection('D_Users').doc(user.uid).get();
-      final data = userData.data();
-      if (data != null) {
-        bioController.text = data['Bio'] ?? '';
-        firstNameController.text = data['Imię'] ?? '';
-        lastNameController.text = data['Nazwisko'] ?? '';
-        accountTypeController.text = data['Typ_konta'] ?? '';
-        ageController.text = data['Wiek'] ?? '';
+      if (userData.exists && userData.data() != null) {
+        final userModel = UserModel.fromFirestore(userData.data()!, user.uid);
+
+        bioController.text = userModel.bio;
+        firstNameController.text = userModel.firstName;
+        lastNameController.text = userModel.lastName;
+        accountTypeController.text = userModel.accountType;
+        ageController.text = userModel.age;
       }
     }
   }
 
   Future<UserModel> getCurrentUser() async {
     final user = _auth.currentUser;
-    if (user == null) throw Exception('User not logged in');
+    if (user == null) throw Exception('Użytkownik nie zalogowany');
 
     final userSnapshot =
         await _firestore.collection('D_Users').doc(user.uid).get();
-    if (!userSnapshot.exists) throw Exception('User data not found');
 
     return UserModel.fromFirestore(userSnapshot.data()!, user.uid);
   }

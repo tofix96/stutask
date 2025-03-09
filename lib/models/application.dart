@@ -11,3 +11,5 @@ class Application {
     );
   }
 }
+
+//nie jest on wykorzystywany

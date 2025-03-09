@@ -15,31 +15,6 @@ class RegisterPageState extends State<RegisterPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  Future<void> _registerUser() async {
-    if (_formKey.currentState!.validate()) {
-      final String email = _emailController.text.trim();
-      final String password = _passwordController.text.trim();
-
-      try {
-        await Provider.of<AuthProvider>(context, listen: false)
-            .registerUser(context, email, password);
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-              content: Text('Rejestracja udana! Wysłano Email weryfikacyjny')),
-        );
-        Navigator.pushReplacementNamed(context, '/');
-      } catch (e) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Błąd rejestracji: $e')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Popraw błędy w formularzu.')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,5 +149,30 @@ class RegisterPageState extends State<RegisterPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _registerUser() async {
+    if (_formKey.currentState!.validate()) {
+      final String email = _emailController.text.trim();
+      final String password = _passwordController.text.trim();
+
+      try {
+        await Provider.of<AuthProvider>(context, listen: false)
+            .registerUser(context, email, password);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Rejestracja udana! Wysłano Email weryfikacyjny')),
+        );
+        Navigator.pushReplacementNamed(context, '/');
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Błąd rejestracji: $e')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Popraw błędy w formularzu.')),
+      );
+    }
   }
 }

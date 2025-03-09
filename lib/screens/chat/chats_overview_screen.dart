@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:stutask/bloc/screen_controller.dart';
 import 'package:stutask/widgets/widget_style.dart';
 import 'package:stutask/bloc/user_service.dart';
+import 'package:provider/provider.dart';
 
 class ChatOverviewScreen extends StatelessWidget {
   ChatOverviewScreen({super.key});
@@ -10,7 +11,8 @@ class ChatOverviewScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chatStream = UserService().getChatStream();
+    final userService = Provider.of<UserService>(context, listen: false);
+    final chatStream = userService.getChatStream();
 
     return Scaffold(
       appBar: GradientAppBar(title: 'Lista chatów'),

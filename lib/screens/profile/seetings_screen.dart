@@ -32,28 +32,14 @@ class SettingsScreenState extends State<SettingsScreen> {
       ageController: _ageController,
     )
         .then((_) {
-      setState(
-          () {}); // Odśwież ekran, aby załadować wybraną wartość w liście rozwijanej
+      setState(() {}); // Odśwież ekran
     });
-  }
-
-  Future<void> _saveUserInfo() async {
-    await _userService.saveUserInfo(
-      bio: _bioController.text,
-      firstName: _firstNameController.text,
-      lastName: _lastNameController.text,
-      accountType: _accountTypeController.text,
-      age: _ageController.text,
-    );
-
-    _screenController.navigateToHome(
-        context, FirebaseAuth.instance.currentUser);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
+      body: SizedBox(
         width: double.infinity,
         height: double.infinity,
         child: Padding(
@@ -198,5 +184,18 @@ class SettingsScreenState extends State<SettingsScreen> {
     _accountTypeController.dispose();
     _ageController.dispose();
     super.dispose();
+  }
+
+  Future<void> _saveUserInfo() async {
+    await _userService.saveUserInfo(
+      bio: _bioController.text,
+      firstName: _firstNameController.text,
+      lastName: _lastNameController.text,
+      accountType: _accountTypeController.text,
+      age: _ageController.text,
+    );
+
+    _screenController.navigateToHome(
+        context, FirebaseAuth.instance.currentUser);
   }
 }

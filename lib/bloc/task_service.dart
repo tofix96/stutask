@@ -67,6 +67,7 @@ class TaskService {
           'zdjecie': task.imageUrl,
           'userId': task.creatorId,
           'completed': task.completed,
+          'admin_accept': task.admin_accept,
           'assignedUserId': task.assignedUserId,
           'Miasto': task.city,
         };
@@ -212,19 +213,32 @@ class TaskService {
     required String reviewText,
     required int rating,
   }) async {
-    final userRef = _firestore.collection('D_Users').doc(assignedUserId);
+    try {
+      print("Próba dodania recenzji...");
+      print("Wysłane taskId: $taskId");
+      print("Wysłane reviewedUserId: $assignedUserId");
 
-    await userRef.collection('reviews').add({
-      'taskId': taskId,
-      'review': reviewText,
-      'rating': rating,
-      'timestamp': Timestamp.now(),
-    });
+      final userRef = _firestore.collection('D_Users').doc(assignedUserId);
 
-    await _firestore.collection('tasks').doc(taskId).update({
-      'completed': true,
-      'completionTimestamp': Timestamp.now(),
-    });
+      await userRef.collection('reviews').add({
+        'taskId': taskId,
+        'reviewedUserId': assignedUserId,
+        'review': reviewText,
+        'rating': rating,
+        'timestamp': Timestamp.now(),
+      });
+
+      print("Dodano recenzję do Firestore!");
+
+      await _firestore.collection('tasks').doc(taskId).update({
+        'completed': true,
+        'completionTimestamp': Timestamp.now(),
+      });
+
+      print("Zaktualizowano zadanie!");
+    } catch (e) {
+      print("Błąd w submitReview: $e");
+    }
   }
 
   Future<void> createTaskWithValidation({
@@ -259,6 +273,7 @@ class TaskService {
         imageUrl: imageUrl,
         creatorId: user?.uid ?? '',
         completed: false,
+        admin_accept: false,
         assignedUserId: null,
         city: cityController.text,
       );
